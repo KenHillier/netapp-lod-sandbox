@@ -1,0 +1,56 @@
+# Requires Ansible 2.12+ for module_defaults
+---
+- hosts: localhost
+  gather_facts: false
+  name: Connectivity Test & Display ONTAP Info
+  collections:
+    - netapp.ontap
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+  # Precedence: Play vars_files <- Play vars_prompt <- Play vars
+  # vars_files:
+  # - password.yml
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: true
+      confirm: true
+  vars:
+    netapp_hostname: 192.168.7.190
+    netapp_username: admin
+    # netapp_password: netapp1234  # Needs to be commented out if using var_prompts
+    # YAML Alias - Replaced by module_defaults
+    login: &login
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+
+  tasks:
+    # - name: "Display ONTAP_info: ZAPI"
+    #   netapp.ontap.na_ontap_info:
+    #     state: info
+    #     # <<: *login  # Not needed because of the module_defaults
+    #     gather_subset:
+    #       - ontap_system_version
+    #       - aggregate_info
+    #   register: ontap_info
+
+    - name: "Display ONTAP_info: REST"
+      netapp.ontap.na_ontap_rest_info:
+        gather_subset:
+          # - svm/svms
+          # - demo
+          - cluster/licensing/licenses
+      register: ontap_info
+
+    - name: Print ONTAP Response
+      debug:
+        msg: "{{ ontap_info.ontap_info }}"
