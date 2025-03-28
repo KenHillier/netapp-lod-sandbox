@@ -345,7 +345,7 @@ Added in ONTAP 9.11.1 - Performance Counters (For Future Reference)
 
 In later releases of ONTAP the performance metrics get more comprehensive.
 
-```
+```shell
 https://docs.netapp.com/us-en/ontap-automation/migrate/performance-counters.html#discover-the-available-performance-counter-tables
 
 curl -X GET -u admin:<PASSWORD> -k 'https://<ONTAP_IP_ADDRESS>/api/cluster/counter/tables'
