@@ -1,0 +1,325 @@
+[root@rhel1 netapp-lod-sandbox]# curl -ku admin:Netapp1! -X GET "https://cluster1/api/network/ethernet/ports?return_records=true&return_timeout=15"
+{
+  "records": [
+    {
+      "uuid": "0a34c002-0b2d-11f0-b971-0050569d0ad0",
+      "name": "a0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/0a34c002-0b2d-11f0-b971-0050569d0ad0"
+        }
+      }
+    },
+    {
+      "uuid": "0e24f698-0b2d-11f0-b38f-0050569d0c17",
+      "name": "a0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/0e24f698-0b2d-11f0-b38f-0050569d0c17"
+        }
+      }
+    },
+    {
+      "uuid": "679636a7-a772-11ef-b0f0-005056b027f6",
+      "name": "e0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/679636a7-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "67977953-a772-11ef-b0f0-005056b027f6",
+      "name": "e0b",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/67977953-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "679795b8-a772-11ef-b0f0-005056b027f6",
+      "name": "e0c",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/679795b8-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797b0e0-a772-11ef-b0f0-005056b027f6",
+      "name": "e0d",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797b0e0-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797cb84-a772-11ef-b0f0-005056b027f6",
+      "name": "e0e",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797cb84-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797eba0-a772-11ef-b0f0-005056b027f6",
+      "name": "e0f",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797eba0-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "67980657-a772-11ef-b0f0-005056b027f6",
+      "name": "e0g",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/67980657-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "dae4c927-a771-11ef-8df6-005056b03f60",
+      "name": "e0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae4c927-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae50aa8-a771-11ef-8df6-005056b03f60",
+      "name": "e0b",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae50aa8-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae52755-a771-11ef-8df6-005056b03f60",
+      "name": "e0c",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae52755-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae54190-a771-11ef-8df6-005056b03f60",
+      "name": "e0d",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae54190-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae55c74-a771-11ef-8df6-005056b03f60",
+      "name": "e0e",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae55c74-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae576cf-a771-11ef-8df6-005056b03f60",
+      "name": "e0f",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae576cf-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae5917d-a771-11ef-8df6-005056b03f60",
+      "name": "e0g",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae5917d-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    }
+  ],
+  "num_records": 16,
+  "_links": {
+    "self": {
+      "href": "/api/network/ethernet/ports?return_records=true&return_timeout=15"
+    }
+  }
+}[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# 
+[root@rhel1 netapp-lod-sandbox]# curl -siku admin:Netapp1! -X GET "https://cluster1/api/network/ethernet/ports?return_records=true&return_timeout=15"
+HTTP/1.1 200 OK
+Date: Fri, 28 Mar 2025 21:21:38 GMT
+Server: libzapid-httpd
+X-Content-Type-Options: nosniff
+Cache-Control: no-cache,no-store,must-revalidate
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors: 'self'
+Content-Type: application/hal+json
+Vary: Accept-Encoding,Origin
+Transfer-Encoding: chunked
+
+{
+  "records": [
+    {
+      "uuid": "0a34c002-0b2d-11f0-b971-0050569d0ad0",
+      "name": "a0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/0a34c002-0b2d-11f0-b971-0050569d0ad0"
+        }
+      }
+    },
+    {
+      "uuid": "0e24f698-0b2d-11f0-b38f-0050569d0c17",
+      "name": "a0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/0e24f698-0b2d-11f0-b38f-0050569d0c17"
+        }
+      }
+    },
+    {
+      "uuid": "679636a7-a772-11ef-b0f0-005056b027f6",
+      "name": "e0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/679636a7-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "67977953-a772-11ef-b0f0-005056b027f6",
+      "name": "e0b",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/67977953-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "679795b8-a772-11ef-b0f0-005056b027f6",
+      "name": "e0c",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/679795b8-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797b0e0-a772-11ef-b0f0-005056b027f6",
+      "name": "e0d",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797b0e0-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797cb84-a772-11ef-b0f0-005056b027f6",
+      "name": "e0e",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797cb84-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "6797eba0-a772-11ef-b0f0-005056b027f6",
+      "name": "e0f",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/6797eba0-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "67980657-a772-11ef-b0f0-005056b027f6",
+      "name": "e0g",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/67980657-a772-11ef-b0f0-005056b027f6"
+        }
+      }
+    },
+    {
+      "uuid": "dae4c927-a771-11ef-8df6-005056b03f60",
+      "name": "e0a",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae4c927-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae50aa8-a771-11ef-8df6-005056b03f60",
+      "name": "e0b",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae50aa8-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae52755-a771-11ef-8df6-005056b03f60",
+      "name": "e0c",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae52755-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae54190-a771-11ef-8df6-005056b03f60",
+      "name": "e0d",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae54190-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae55c74-a771-11ef-8df6-005056b03f60",
+      "name": "e0e",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae55c74-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae576cf-a771-11ef-8df6-005056b03f60",
+      "name": "e0f",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae576cf-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    },
+    {
+      "uuid": "dae5917d-a771-11ef-8df6-005056b03f60",
+      "name": "e0g",
+      "_links": {
+        "self": {
+          "href": "/api/network/ethernet/ports/dae5917d-a771-11ef-8df6-005056b03f60"
+        }
+      }
+    }
+  ],
+  "num_records": 16,
+  "_links": {
+    "self": {
+      "href": "/api/network/ethernet/ports?return_records=true&return_timeout=15"
+    }
+  }
+}
