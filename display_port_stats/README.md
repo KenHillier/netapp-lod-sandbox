@@ -1,5 +1,12 @@
 # Display Network Port Statistics
 
+Results:
+* Most ethernet ports are available directly via REST API calls. 
+* However, there are several fields that still need to be retrieved via ONTAP's node shell with `ifstat`. 
+  * Discards & Pause frames are missing from ONTAP level commands.
+* This was tested on 9.16.1
+* The table below summarizes that.
+
 ## Display Network Port Statistics with `ifstat -a`
 
 Using the Data ONTAP 7-Mode command `ifstat -a` to collect these fields:
