@@ -2,7 +2,7 @@
 
 Goal:
 1. Display All SMB Shares (for vserver/SVM)
-2. Display top-levle Directories within Shares
+2. Display top-level Directories within Shares
 3. Display NTFS permissions on path (file / directory)
 
 ## ONTAP APIs

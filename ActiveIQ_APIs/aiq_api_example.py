@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get the API key from environment variables
-api_token = os.getenv("AIQ_API_ACCESS_TOKEN")
+api_token = os.getenv("AIQ_API_ACCESS_KEY")
+if not api_token:
+    raise ValueError("API token not found. Please set the AIQ_API_ACCESS_KEY environment variable.")
 
 # Set up the headers with your API key
 headers = {
@@ -22,10 +24,10 @@ base_url = 'https://api.activeiq.netapp.com/v1'
 customer_id = urllib.parse.quote('Goldman Sachs')
 
 # Construct the URL for the request
-url = f'{base_url}/customers/{customer_id}/clusters'
+# url = f'{base_url}/customers/{customer_id}/clusters'
 
 # Make the request
-response = requests.get(url, headers=headers)
+# response = requests.get(url, headers=headers)
 
 # Check the response
 # if response.status_code == 200:
@@ -62,7 +64,8 @@ response = requests.get(url, headers=headers)
 #     print(response.text)
 
 # First, get the list of customers
-url = f'{base_url}/customers'
+# url = f'{base_url}/customers'
+url = f'{base_url}/users'
 response = requests.get(url, headers=headers)
 print(response.json())  # Find the correct customer_id from this output
 print(f"Status: {response.status_code}")
