@@ -56,5 +56,10 @@ The script will attempt to connect to the ActiveIQ API and list customers access
 
 ## References
 
-- [NetApp ActiveIQ API Documentation](https://api.activeiq.netapp.com/docs/)
+- [NetApp ActiveIQ API Documentation](https://api.activeiq.netapp.com/docs/
+
+## `curl` examples
+
+```bash
+curl -X
 ```
