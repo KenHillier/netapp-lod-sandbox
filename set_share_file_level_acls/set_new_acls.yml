@@ -1,0 +1,64 @@
+---
+- hosts: localhost
+  name: Set NTFS ACLs on a NetApp Volume Directory (Minimal Prompt)
+  gather_facts: false
+
+  collections:
+    - netapp.ontap
+
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  vars:
+    netapp_hostname: 192.168.0.101
+    netapp_username: admin
+    vserver: ntap-svm01-nas
+    domain: DEMO
+    owner: "{{ domain }}\\Administrator"
+    # Default ACLs, can be overridden if needed
+    default_acls:
+      - access: access_allow
+        user: "{{ domain }}\\Domain Admins"
+        full_control: true
+        apply_to:
+          this_folder: true
+          sub_folders: true
+          files: true
+      - access: access_allow
+        user: "{{ domain }}\\Domain Users"
+        write_data: true
+        append_data: true
+        read_data: true
+        read_attr: true
+        read_ea: true
+        write_attr: true
+        write_ea: true
+        read_perm: true
+        apply_to:
+          this_folder: true
+          sub_folders: true
+          files: true
+
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "NetApp Password"
+      private: yes
+    - name: "junction_path"
+      prompt: "Junction Path (e.g. /autoprov_vol)"
+      private: no
+
+  tasks:
+    - name: Set NTFS permissions for root directory of the volume
+      netapp.ontap.na_ontap_file_security_permissions:
+        state: present
+        vserver: "{{ vserver }}"
+        access_control: file_directory
+        path: "{{ junction_path }}"
+        owner: "{{ owner }}"
+        acls: "{{ default_acls }}"

@@ -1,0 +1,71 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+  vars:
+    netapp_hostname: 192.168.0.101
+    netapp_username: admin
+    svm_name: ntap-svm01-nas
+
+  vars_prompt:
+    - name: netapp_password
+      prompt: "NetApp Password"
+      private: yes
+    - name: ntfs_path
+      prompt: "Path (e.g. /autoprov_vol or /vol/share/dir)"
+      private: no
+
+  tasks:
+    - name: Get SVM UUID
+      uri:
+        url: "https://{{ netapp_hostname }}/api/svm/svms?name={{ svm_name }}&return_records=true"
+        method: GET
+        user: "{{ netapp_username }}"
+        password: "{{ netapp_password }}"
+        validate_certs: false
+        return_content: true
+      register: svm_info
+
+    - name: Fail if SVM not found
+      fail:
+        msg: "Could not find SVM UUID for {{ svm_name }}"
+      when: svm_info.json.records | length == 0
+
+    - name: Set SVM UUID fact
+      set_fact:
+        svm_uuid: "{{ svm_info.json.records[0].uuid }}"
+
+    - name: URL-encode the path
+      set_fact:
+        ntfs_path_encoded: "{{ ntfs_path | urlencode }}"
+
+    - name: Get NTFS ACLs for path
+      uri:
+        url: "https://{{ netapp_hostname }}/api/protocols/file-security/permissions/{{ svm_uuid }}/{{ ntfs_path_encoded }}"
+        method: GET
+        user: "{{ netapp_username }}"
+        password: "{{ netapp_password }}"
+        validate_certs: false
+        return_content: true
+      register: acl_info
+
+    - name: Show NTFS ACLs (raw JSON)
+      debug:
+        var: acl_info.json
+
+    - name: Show NTFS ACLs (pretty)
+      debug:
+        msg: |
+          Path: {{ acl_info.json.path }}
+          Owner: {{ acl_info.json.owner }}
+          Group: {{ acl_info.json.group }}
+          Security Style: {{ acl_info.json.security_style }}
+          Effective Style: {{ acl_info.json.effective_style }}
+          ACLs:
+          {% for acl in acl_info.json.acls %}
+            - User: {{ acl.user }}
+              Access: {{ acl.access }}
+              Apply To: {{ acl.apply_to | to_nice_json }}
+              Rights: {{ acl.advanced_rights | default('N/A') | to_nice_json }}
+              Inherited: {{ acl.inherited }}
+          {% endfor %}

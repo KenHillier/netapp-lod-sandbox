@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  name: Basic Connectivity Test
+  gather_facts: false
+  collections:
+    - netapp.ontap
+  
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  # Varible precedence: vars < vars_prompts < vaars_files
+  vars:
+    netapp_hostname:  192.168.0.101
+    netapp_username:  admin
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: yes
+      confirm: yes
+  # vars_files:
+  #   - vars_files.yml
+
+  tasks:
+  - name: 'Connectivity Test & Display ONTAP_info: All'
+    netapp.ontap.na_ontap_info:
+      gather_subset:  
+      - all
+        # - volume_info
+        # - lun_info
+        # - snapshot_policy_info
+        # - ontap_system_version
+        # - ontap_version
+    register: ontap_info
+
+  - name: Display Captured info
+    debug:
+        msg: "{{ ontap_info.ontap_info }}"

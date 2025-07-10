@@ -1,0 +1,51 @@
+---
+- hosts: localhost
+  name: Autoprovision Volume with CIFS & NFS Access using nas_application_template
+  gather_facts: false
+  collections:
+    - netapp.ontap
+
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username | default('admin')}}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  vars:
+    netapp_hostname: 192.168.0.101
+    svm_name: "ntap-svm01-nas"
+    # Autoprovisioning parameters
+    # These will be used to create a new volume and CIFS share
+    volume_name: "auto_smb_share"
+    volume_size: 1
+    cifs_share_name: "auto_smb_share"
+    cifs_acls:
+      - { access: "full_control", user_or_group: "Domain Admins" }
+      - { access: "full_control", user_or_group: "Domain Users" }
+    nfs_access:
+      - { access: "rw", host: "192.168.0.0/32" }
+      - { access: "ro", host: "0.0.0.0/0" }
+
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: yes
+
+  tasks:
+    - name: Create volume using nas_application_template with CIFS and NFS access
+      netapp.ontap.na_ontap_volume:
+        state: present
+        name: "{{ volume_name }}"
+        vserver: "{{ svm_name }}"
+        size: "{{ volume_size }}"
+        size_unit: "{{ volume_size_unit | default('gb') }}"
+        space_guarantee: none
+        snapshot_policy: default
+        nas_application_template:
+          cifs_access: "{{ cifs_acls }}"
+          cifs_share_name: "{{ cifs_share_name }}"
+          nfs_access: "{{ nfs_access }}"
+        volume_security_style: "ntfs"

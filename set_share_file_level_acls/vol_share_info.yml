@@ -1,0 +1,143 @@
+---
+- hosts: localhost
+  name: Display Volume Share Info
+  gather_facts: false
+
+  # Use the NetApp ONTAP collection for all tasks
+  collections:
+    - netapp.ontap
+
+  # Set module defaults for NetApp ONTAP modules
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  # Variables and prompts for credentials
+  vars:
+    netapp_hostname: 192.168.0.101
+    netapp_username: admin
+
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: yes
+
+  tasks:
+    # Gather volume information from the cluster
+    - name: Gather volume info
+      netapp.ontap.na_ontap_info:
+        gather_subset:
+          - volume_info
+      register: ontap_info
+
+    # Gather CIFS share information from the cluster
+    - name: Gather CIFS share info
+      netapp.ontap.na_ontap_info:
+        gather_subset:
+          - cifs_share_info
+      register: cifs_info
+
+    # Debug: Show raw CIFS share info structure (for troubleshooting)
+    - name: Show raw cifs_share_info structure
+      debug:
+        var: cifs_info.ontap_info.cifs_share_info
+
+    # Build a mapping: volume name -> list of CIFS share names
+    - name: Build mapping of volume name to CIFS share(s)
+      set_fact:
+        cifs_junction_map: >-
+          {{
+            dict(
+              cifs_info.ontap_info.cifs_share_info.values()
+              | groupby('volume')
+              | map('first')
+              | zip(
+                  cifs_info.ontap_info.cifs_share_info.values()
+                  | groupby('volume')
+                  | map('last')
+                  | map('map', attribute='share_name')
+                )
+              | list
+            )
+          }}
+      when: cifs_info.ontap_info.cifs_share_info is defined
+
+    # Debug: Show which volumes have CIFS shares (for troubleshooting)
+    - name: Show CIFS junction map keys
+      debug:
+        msg: "{{ cifs_junction_map.keys() | list }}"
+      when: cifs_junction_map is defined
+
+    # Debug: Show all volume junction paths (for troubleshooting)
+    - name: Show all volume junction paths
+      debug:
+        msg: "{{ item.volume_id_attributes.junction_path | default('N/A') }}"
+      loop: "{{ ontap_info.ontap_info.volume_info | dict2items | map(attribute='value') | list }}"
+
+    # Build aligned summary lines for each volume (excluding vol0 and *_root)
+    - name: Build aligned summary lines for each volume
+      set_fact:
+        volume_summary_lines: >-
+          {{
+            (volume_summary_lines | default([])) +
+            [
+              "%-25s %-12s %-25s %-10s %-22s %-20s %-20s %-20s" | format(
+                item.volume_id_attributes.name | default('N/A'),
+                item.volume_id_attributes.style | default('N/A'),
+                item.volume_id_attributes.containing_aggregate_name | default('N/A'),
+                (
+                  (item.volume_space_attributes.size | float / 1073741824)
+                  | round(2)
+                  | string
+                  ~ " GB"
+                ) if item.volume_space_attributes.size is defined else "N/A",
+                item.volume_id_attributes.junction_path | default('N/A'),
+                item.volume_export_attributes.policy | default('N/A'),
+                item.volume_security_attributes.style | default('N/A'),
+                (
+                  cifs_junction_map[item.volume_id_attributes.name] | join(', ')
+                  if cifs_junction_map is defined and
+                     item.volume_id_attributes.name in cifs_junction_map
+                  else 'No'
+                )
+              )
+            ]
+          }}
+      loop: "{{ ontap_info.ontap_info.volume_info | dict2items | map(attribute='value') | list }}"
+      when: >
+        not (item.volume_id_attributes.name is match('^vol0$'))
+        and not (item.volume_id_attributes.name is search('_root$'))
+
+    # Print the aligned summary table to the terminal
+    - name: Print aligned volume share summary table
+      debug:
+        msg: |-
+          Volume Name               Style        Aggregate                 Size (GB)  Junction Path           Export Policy        Security Style     CIFS Share
+          ------------------------- ------------ ------------------------- ---------- ---------------------- -------------------- ------------------ --------------------
+          {{ volume_summary_lines | join('\n') }}
+
+    # Write the aligned summary table to a file
+    - name: Write aligned volume share summary table to file
+      copy:
+        dest: /tmp/volume_share_summary.txt
+        content: |-
+          Volume Name               Style        Aggregate                 Size (GB)  Junction Path           Export Policy        Security Style     CIFS Share
+          ------------------------- ------------ ------------------------- ---------- ---------------------- -------------------- ------------------ --------------------
+          {% for line in volume_summary_lines %}
+          {{ line }}
+          {% endfor %}
+
+# -----------------
+# Best Practices:
+# -----------------
+# - Use 'gather_facts: false' for localhost/reporting playbooks to speed up execution.
+# - Use 'module_defaults' to avoid repeating connection info.
+# - Use debug tasks (with 'when') for troubleshooting, and comment or remove them for production.
+# - Use descriptive task names and comments for maintainability.
+# - Use 'default' filters and 'when' conditions to avoid errors on missing attributes.
+# - Consider switching to REST modules for future-proofing (as ZAPI is deprecated).

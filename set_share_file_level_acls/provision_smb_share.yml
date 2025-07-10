@@ -1,0 +1,65 @@
+---
+- hosts: localhost
+  name: Provision SMB Share on ONTAP
+  gather_facts: false
+  collections:
+    - netapp.ontap
+
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  vars:
+    netapp_hostname: 192.168.0.101
+    netapp_username: admin
+    svm_name: "ntap-svm01-nas"
+    volume_name: "demo_vol"
+    volume_size: "1"
+    size_unit: "gb"
+    share_name: "demo_share"
+    junction_path: "/demo_vol"
+    share_acls:
+      - { state: "absent", target: "Everyone", ace: "full_control" }
+      - { state: "present", target: "Domain Admins", ace: "full_control" }
+      - { state: "present", target: "Domain Users", ace: "write" }
+
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: yes
+
+  tasks:
+    - name: Create volume
+      netapp.ontap.na_ontap_volume:
+        state: present
+        name: "{{ volume_name }}"
+        size: "{{ volume_size }}"
+        size_unit: "{{ size_unit }}"
+        vserver: "{{ svm_name }}"
+        junction_path: "{{ junction_path }}"
+        space_guarantee: none
+
+    - name: Create SMB share
+      netapp.ontap.na_ontap_cifs:
+        state: present
+        name: "{{ share_name }}"
+        path: "{{ junction_path }}"
+        vserver: "{{ svm_name }}"
+        browsable: true
+        oplocks: true
+        show_snapshot: true
+        comment: "Demo SMB share provisioned by Ansible"
+
+    - name: Manage SMB share ACLs
+      netapp.ontap.na_ontap_cifs_acl:
+        state: "{{ item.state }}"
+        share_name: "{{ share_name }}"
+        vserver: "{{ svm_name }}"
+        user_or_group: "{{ item.target }}"
+        permission: "{{ item.ace }}"
+      loop: "{{ share_acls }}"

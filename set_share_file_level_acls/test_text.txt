@@ -1,0 +1,229 @@
+
+PLAY [Display Volume Info] *****************************************************
+
+TASK [Gather volume info] ******************************************************
+ok: [localhost]
+
+TASK [Show top-level keys of volume_info] **************************************
+ok: [localhost] => {
+    "msg": [
+        "vol0:cluster1-01",
+        "vol0:cluster1-02",
+        "cluster1_ad_root:cluster1_ad",
+        "autoprov_vol:ntap-svm01-nas",
+        "ntap_svm01_nas_root:ntap-svm01-nas",
+        "ntap_svm02_san_root:ntap-svm02-san"
+    ]
+}
+
+TASK [Show first volume structure] *********************************************
+ok: [localhost] => {
+    "msg": {
+        "encrypt": "false",
+        "encryption_state": "none",
+        "encryption_type": "none",
+        "volume_antivirus_attributes": {
+            "on_access_policy": "default"
+        },
+        "volume_autosize_attributes": {
+            "grow_threshold_percent": "90",
+            "is_enabled": "false",
+            "maximum_size": "29622587392",
+            "minimum_size": "24685490176",
+            "mode": "off",
+            "shrink_threshold_percent": "50"
+        },
+        "volume_comp_aggr_attributes": {
+            "cloud_retrieval_policy": "default",
+            "is_cloud_write_enabled": "false",
+            "tiering_policy": "none"
+        },
+        "volume_directory_attributes": {
+            "i2p_enabled": "true",
+            "max_dir_size": "128764928",
+            "root_dir_gen": "26830"
+        },
+        "volume_hybrid_cache_attributes": {
+            "eligibility": "read_write"
+        },
+        "volume_id_attributes": {
+            "aggr_list": {
+                "aggr_name": "aggr0_cluster1_01"
+            },
+            "containing_aggregate_name": "aggr0_cluster1_01",
+            "containing_aggregate_uuid": "c0161742-21bf-4122-8f07-443027ac4ea0",
+            "creation_time": "1732129063",
+            "extent_size": "4k",
+            "fsid": "2209464160",
+            "instance_uuid": "4444e34a-5d3f-4868-9c52-12d1bd6ac4f9",
+            "name": "vol0",
+            "name_ordinal": "base",
+            "node": "cluster1-01",
+            "nodes": {
+                "node_name": "cluster1-01"
+            },
+            "owning_vserver_name": "cluster1-01",
+            "owning_vserver_uuid": "1045db6a-a771-11ef-8df6-005056b03f60",
+            "provenance_uuid": "4444e34a-5d3f-4868-9c52-12d1bd6ac4f9",
+            "style": "flex",
+            "style_extended": "flexvol",
+            "type": "rw",
+            "uuid": "f6cc2e1b-2a9b-4726-a80f-0297899e2c1c"
+        },
+        "volume_inode_attributes": {
+            "block_type": "64_bit",
+            "files_private_used": "504",
+            "files_set_maximum": "false",
+            "files_total": "715673",
+            "files_used": "42860",
+            "inodefile_private_capacity": "31136",
+            "inodefile_public_capacity": "55156",
+            "inofile_version": "4"
+        },
+        "volume_language_attributes": {
+            "is_convert_ucode_enabled": "false",
+            "is_create_ucode_enabled": "false",
+            "language": "undefined 0 (undefined)",
+            "nfs_character_set": "undefined 0",
+            "oem_character_set": "undefined 0"
+        },
+        "volume_mirror_attributes": {
+            "is_data_protection_mirror": "false",
+            "is_load_sharing_mirror": "false",
+            "is_move_mirror": "false",
+            "is_replica_volume": "false",
+            "mirror_transfer_in_progress": "false",
+            "redirect_snapshot_id": "0"
+        },
+        "volume_performance_attributes": {
+            "atime_update_period": "0",
+            "extent_enabled": "off",
+            "fc_delegs_enabled": "false",
+            "is_atime_update_enabled": "true",
+            "is_preserve_unlink_enabled": "false",
+            "max_write_alloc_blocks": "0",
+            "minimal_read_ahead": "false",
+            "read_realloc": "off",
+            "single_instance_data_logging": "off"
+        },
+        "volume_security_attributes": {
+            "volume_security_unix_attributes": {
+                "permissions": "0"
+            }
+        },
+        "volume_sis_attributes": {
+            "compression_space_saved": "0",
+            "deduplication_space_saved": "0",
+            "deduplication_space_shared": "0",
+            "is_sis_logging_enabled": "false",
+            "is_sis_state_enabled": "false",
+            "is_sis_volume": "false",
+            "percentage_compression_space_saved": "0",
+            "percentage_deduplication_space_saved": "0",
+            "percentage_total_space_saved": "0",
+            "total_space_saved": "0"
+        },
+        "volume_snaplock_attributes": {
+            "snaplock_type": "non_snaplock"
+        },
+        "volume_snapshot_attributes": {
+            "auto_snapshots_enabled": "false",
+            "snapdir_access_enabled": "true",
+            "snapshot_clone_dependency_enabled": "false",
+            "snapshot_count": "8"
+        },
+        "volume_snapshot_autodelete_attributes": {
+            "commitment": "try",
+            "defer_delete": "user_created",
+            "delete_order": "oldest_first",
+            "destroy_list": "none",
+            "is_autodelete_enabled": "true",
+            "prefix": "(not specified)",
+            "target_free_space": "35",
+            "trigger": "volume"
+        },
+        "volume_space_attributes": {
+            "expected_available": "16570703872",
+            "filesystem_size": "24685490176",
+            "is_filesys_size_fixed": "false",
+            "is_space_enforcement_logical": "false",
+            "is_space_guarantee_enabled": "true",
+            "is_space_reporting_logical": "false",
+            "is_space_slo_enabled": "true",
+            "is_used_stale": "false",
+            "logical_used": "6880514048",
+            "logical_used_by_afs": "2487291904",
+            "logical_used_by_snapshots": "0",
+            "logical_used_percent": "29",
+            "over_provisioned": "0",
+            "overwrite_reserve": "0",
+            "overwrite_reserve_required": "0",
+            "overwrite_reserve_used": "0",
+            "overwrite_reserve_used_actual": "0",
+            "percentage_fractional_reserve": "100",
+            "percentage_size_used": "29",
+            "percentage_snapshot_reserve": "5",
+            "percentage_snapshot_reserve_used": "456",
+            "physical_used": "24822628352",
+            "physical_used_percent": "101",
+            "size": "24685490176",
+            "size_available": "16570703872",
+            "size_available_for_snapshots": "16570703872",
+            "size_total": "23451217920",
+            "size_used": "6880514048",
+            "size_used_by_snapshots": "5627494400",
+            "snapshot_reserve_available": "0",
+            "snapshot_reserve_size": "1234272256",
+            "space_full_threshold_percent": "98",
+            "space_guarantee": "volume",
+            "space_mgmt_option_try_first": "volume_grow",
+            "space_nearly_full_threshold_percent": "95",
+            "space_slo": "none"
+        },
+        "volume_state_attributes": {
+            "become_node_root_after_reboot": "false",
+            "force_nvfail_on_dr": "false",
+            "ignore_inconsistent": "false",
+            "in_nvfailed_state": "false",
+            "is_cluster_volume": "false",
+            "is_constituent": "false",
+            "is_flexgroup": "false",
+            "is_flexgroup_qtree_enabled": "false",
+            "is_inconsistent": "false",
+            "is_invalid": "false",
+            "is_move_destination_in_cutover": "false",
+            "is_node_root": "true",
+            "is_nvfail_enabled": "true",
+            "is_protocol_access_fenced": "false",
+            "is_quiesced_in_memory": "false",
+            "is_quiesced_on_disk": "false",
+            "is_smbc_failover_capable": "false",
+            "is_smbc_master": "false",
+            "is_unrecoverable": "false",
+            "state": "online"
+        },
+        "volume_transition_attributes": {
+            "is_cft_precommit": "false",
+            "is_copied_for_transition": "false",
+            "is_transitioned": "false",
+            "transition_behavior": "none"
+        }
+    }
+}
+
+TASK [Build aligned summary lines for each volume] *****************************
+ok: [localhost] => (item={'encrypt': 'false', 'encryption_state': 'none', 'encryption_type': 'none', 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autosize_attributes': {'grow_threshold_percent': '90', 'is_enabled': 'false', 'maximum_size': '29622587392', 'minimum_size': '24685490176', 'mode': 'off', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '26830'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'aggr0_cluster1_01'}, 'containing_aggregate_name': 'aggr0_cluster1_01', 'containing_aggregate_uuid': 'c0161742-21bf-4122-8f07-443027ac4ea0', 'creation_time': '1732129063', 'extent_size': '4k', 'fsid': '2209464160', 'instance_uuid': '4444e34a-5d3f-4868-9c52-12d1bd6ac4f9', 'name': 'vol0', 'name_ordinal': 'base', 'node': 'cluster1-01', 'nodes': {'node_name': 'cluster1-01'}, 'owning_vserver_name': 'cluster1-01', 'owning_vserver_uuid': '1045db6a-a771-11ef-8df6-005056b03f60', 'provenance_uuid': '4444e34a-5d3f-4868-9c52-12d1bd6ac4f9', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': 'f6cc2e1b-2a9b-4726-a80f-0297899e2c1c'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '504', 'files_set_maximum': 'false', 'files_total': '715673', 'files_used': '42860', 'inodefile_private_capacity': '31136', 'inodefile_public_capacity': '55156', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'false', 'is_create_ucode_enabled': 'false', 'language': 'undefined 0 (undefined)', 'nfs_character_set': 'undefined 0', 'oem_character_set': 'undefined 0'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'false', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_security_attributes': {'volume_security_unix_attributes': {'permissions': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'false', 'is_sis_state_enabled': 'false', 'is_sis_volume': 'false', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'false', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '8'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'true', 'prefix': '(not specified)', 'target_free_space': '35', 'trigger': 'volume'}, 'volume_space_attributes': {'expected_available': '16570703872', 'filesystem_size': '24685490176', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '6880514048', 'logical_used_by_afs': '2487291904', 'logical_used_by_snapshots': '0', 'logical_used_percent': '29', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '100', 'percentage_size_used': '29', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '456', 'physical_used': '24822628352', 'physical_used_percent': '101', 'size': '24685490176', 'size_available': '16570703872', 'size_available_for_snapshots': '16570703872', 'size_total': '23451217920', 'size_used': '6880514048', 'size_used_by_snapshots': '5627494400', 'snapshot_reserve_available': '0', 'snapshot_reserve_size': '1234272256', 'space_full_threshold_percent': '98', 'space_guarantee': 'volume', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'false', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_move_destination_in_cutover': 'false', 'is_node_root': 'true', 'is_nvfail_enabled': 'true', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+ok: [localhost] => (item={'encrypt': 'false', 'encryption_state': 'none', 'encryption_type': 'none', 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autosize_attributes': {'grow_threshold_percent': '90', 'is_enabled': 'false', 'maximum_size': '29622587392', 'minimum_size': '24685490176', 'mode': 'off', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '27588'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'aggr0_cluster1_02'}, 'containing_aggregate_name': 'aggr0_cluster1_02', 'containing_aggregate_uuid': '9f433f2d-ab0e-4dd3-b264-6c081ba7e597', 'creation_time': '1732129075', 'extent_size': '4k', 'fsid': '2770487850', 'instance_uuid': 'f7dc91ae-faad-410c-9a6d-eb6286ddf6b0', 'name': 'vol0', 'name_ordinal': 'base', 'node': 'cluster1-02', 'nodes': {'node_name': 'cluster1-02'}, 'owning_vserver_name': 'cluster1-02', 'owning_vserver_uuid': '17751c18-a771-11ef-b0f0-005056b027f6', 'provenance_uuid': 'f7dc91ae-faad-410c-9a6d-eb6286ddf6b0', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': '3c8c4d92-ca49-410d-879b-cd419adda84a'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '505', 'files_set_maximum': 'false', 'files_total': '715673', 'files_used': '40247', 'inodefile_private_capacity': '31136', 'inodefile_public_capacity': '50141', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'false', 'is_create_ucode_enabled': 'false', 'language': 'undefined 0 (undefined)', 'nfs_character_set': 'undefined 0', 'oem_character_set': 'undefined 0'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'false', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_security_attributes': {'volume_security_unix_attributes': {'permissions': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'false', 'is_sis_state_enabled': 'false', 'is_sis_volume': 'false', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'false', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '8'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'true', 'prefix': '(not specified)', 'target_free_space': '35', 'trigger': 'volume'}, 'volume_space_attributes': {'expected_available': '16798830592', 'filesystem_size': '24685490176', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '6652387328', 'logical_used_by_afs': '2468913152', 'logical_used_by_snapshots': '0', 'logical_used_percent': '28', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '100', 'percentage_size_used': '28', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '439', 'physical_used': '24822628352', 'physical_used_percent': '101', 'size': '24685490176', 'size_available': '16798830592', 'size_available_for_snapshots': '16798830592', 'size_total': '23451217920', 'size_used': '6652387328', 'size_used_by_snapshots': '5417746432', 'snapshot_reserve_available': '0', 'snapshot_reserve_size': '1234272256', 'space_full_threshold_percent': '98', 'space_guarantee': 'volume', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'false', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_move_destination_in_cutover': 'false', 'is_node_root': 'true', 'is_nvfail_enabled': 'true', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+ok: [localhost] => (item={'encrypt': 'false', 'encryption_state': 'none', 'encryption_type': 'none', 'key_id': None, 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autobalance_attributes': {'is_autobalance_eligible': 'true'}, 'volume_autosize_attributes': {'grow_threshold_percent': '85', 'is_enabled': 'false', 'maximum_size': '25165824', 'minimum_size': '20971520', 'mode': 'off', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'aggressive_readahead_mode': 'none', 'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '167406892'}, 'volume_export_attributes': {'policy': 'default'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'cluster1_01_aggr01'}, 'comment': None, 'containing_aggregate_name': 'cluster1_01_aggr01', 'containing_aggregate_uuid': '5205f769-5daa-11f0-bb55-005056816f09', 'creation_time': '1752164675', 'dsid': '1026', 'extent_size': '4k', 'flexcache_endpoint_type': 'none', 'fsid': '1026', 'instance_uuid': '5def1c5a-5daa-11f0-a6be-0050568199ee', 'junction_path': '/', 'msid': '2158449701', 'name': 'cluster1_ad_root', 'name_ordinal': 'base', 'node': 'cluster1-01', 'nodes': {'node_name': 'cluster1-01'}, 'owning_vserver_name': 'cluster1_ad', 'owning_vserver_uuid': '5b6bb40b-5daa-11f0-bb55-005056816f09', 'provenance_uuid': '5def1c5a-5daa-11f0-a6be-0050568199ee', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': '5e0b4e8e-5daa-11f0-a6be-0050568199ee'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '502', 'files_set_maximum': 'false', 'files_total': '566', 'files_used': '101', 'inodefile_private_capacity': '622', 'inodefile_public_capacity': '566', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'true', 'is_create_ucode_enabled': 'true', 'language': 'C.UTF-8 (POSIX with UTF-8)', 'language_code': 'c.utf_8', 'nfs_character_set': 'utf-8|utf-8|Thu Oct  1 18:00:53 EDT 1998', 'oem_character_set': 'ascii|cp1|Thu Oct  1 18:00:53 EDT 1998'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'is_snapmirror_source': 'false', 'is_snapmirror_source_to_object_store': 'false', 'is_snapmirror_source_to_ontap': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'true', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_security_attributes': {'style': 'unix', 'volume_security_unix_attributes': {'group_id': '0', 'permissions': '755', 'user_id': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'false', 'is_sis_state_enabled': 'false', 'is_sis_volume': 'false', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'true', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '2', 'snapshot_policy': 'default'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'false', 'prefix': '(not specified)', 'target_free_space': '20', 'trigger': 'volume'}, 'volume_space_attributes': {'expected_available': '19578880', 'filesystem_size': '20971520', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '344064', 'logical_used_by_afs': '344064', 'logical_used_by_snapshots': '618496', 'logical_used_percent': '2', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '100', 'percentage_size_used': '1', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '25', 'physical_used': '21188608', 'physical_used_percent': '101', 'size': '20971520', 'size_available': '19578880', 'size_available_for_snapshots': '20369408', 'size_total': '19922944', 'size_used': '344064', 'size_used_by_snapshots': '258048', 'snapshot_reserve_available': '790528', 'snapshot_reserve_size': '1048576', 'space_full_threshold_percent': '98', 'space_guarantee': 'volume', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'true', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_junction_active': 'true', 'is_move_destination_in_cutover': 'false', 'is_moving': 'false', 'is_node_root': 'false', 'is_nvfail_enabled': 'false', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'is_volume_in_cutover': 'false', 'is_vserver_root': 'true', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+ok: [localhost] => (item={'encrypt': 'true', 'encryption_state': 'full', 'encryption_type': 'volume', 'key_creation_time': '1752168260', 'key_id': '0000000000000000020000000000050029e5ea0e1ce4007886333d2f50e787260000000000000000', 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autobalance_attributes': {'is_autobalance_eligible': 'true'}, 'volume_autosize_attributes': {'grow_threshold_percent': '85', 'is_enabled': 'true', 'maximum_size': '1356308480', 'minimum_size': '1130258432', 'mode': 'grow', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'aggressive_readahead_mode': 'none', 'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '1752168260'}, 'volume_export_attributes': {'policy': 'default'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'cluster1_01_aggr01'}, 'application': 'autoprov_vol', 'application_uuid': 'b660a7e9-5db2-11f0-bb55-005056816f09', 'comment': None, 'containing_aggregate_name': 'cluster1_01_aggr01', 'containing_aggregate_uuid': '5205f769-5daa-11f0-bb55-005056816f09', 'creation_time': '1752168260', 'dsid': '1047', 'extent_size': '4k', 'flexcache_endpoint_type': 'none', 'fsid': '1047', 'instance_uuid': 'b706f01e-5db2-11f0-bb55-005056816f09', 'junction_parent_name': 'ntap_svm01_nas_root', 'junction_path': '/autoprov_vol', 'msid': '2158449722', 'name': 'autoprov_vol', 'name_ordinal': 'base', 'node': 'cluster1-01', 'nodes': {'node_name': 'cluster1-01'}, 'owning_vserver_name': 'ntap-svm01-nas', 'owning_vserver_uuid': '71206676-5daa-11f0-bb55-005056816f09', 'provenance_uuid': 'b706f01e-5db2-11f0-bb55-005056816f09', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': 'b74879d5-5db2-11f0-bb55-005056816f09'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '508', 'files_set_maximum': 'false', 'files_total': '32758', 'files_used': '97', 'inodefile_private_capacity': '31136', 'inodefile_public_capacity': '31136', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'true', 'is_create_ucode_enabled': 'true', 'language': 'C.UTF-8 (POSIX with UTF-8)', 'language_code': 'c.utf_8', 'nfs_character_set': 'utf-8|utf-8|Thu Oct  1 18:00:53 EDT 1998', 'oem_character_set': 'ascii|cp1|Thu Oct  1 18:00:53 EDT 1998'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'is_snapmirror_source': 'false', 'is_snapmirror_source_to_object_store': 'false', 'is_snapmirror_source_to_ontap': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'true', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_qos_attributes': {'policy_group_name': 'value-fixed'}, 'volume_security_attributes': {'style': 'ntfs', 'volume_security_unix_attributes': {'permissions': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'true', 'is_sis_state_enabled': 'true', 'is_sis_volume': 'true', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'true', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '1', 'snapshot_policy': 'default'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'true', 'prefix': '(not specified)', 'target_free_space': '20', 'trigger': 'snap_reserve'}, 'volume_space_attributes': {'expected_available': '1073373184', 'filesystem_size': '1130258432', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '372736', 'logical_used_by_afs': '372736', 'logical_used_by_snapshots': '352256', 'logical_used_percent': '0', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '0', 'percentage_size_used': '0', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '0', 'physical_used': '10317824', 'physical_used_percent': '1', 'size': '1130258432', 'size_available': '1073373184', 'size_available_for_snapshots': '1129717760', 'size_total': '1073745920', 'size_used': '372736', 'size_used_by_snapshots': '167936', 'snapshot_reserve_available': '56344576', 'snapshot_reserve_size': '56512512', 'space_full_threshold_percent': '98', 'space_guarantee': 'none', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'true', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_junction_active': 'true', 'is_move_destination_in_cutover': 'false', 'is_moving': 'false', 'is_node_root': 'false', 'is_nvfail_enabled': 'false', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'is_volume_in_cutover': 'false', 'is_vserver_root': 'false', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+ok: [localhost] => (item={'encrypt': 'false', 'encryption_state': 'none', 'encryption_type': 'none', 'key_id': None, 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autobalance_attributes': {'is_autobalance_eligible': 'true'}, 'volume_autosize_attributes': {'grow_threshold_percent': '85', 'is_enabled': 'false', 'maximum_size': '25165824', 'minimum_size': '20971520', 'mode': 'off', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'aggressive_readahead_mode': 'none', 'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '167448971'}, 'volume_export_attributes': {'policy': 'ro_ntap-svm01-nas'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'cluster1_02_aggr01'}, 'comment': None, 'containing_aggregate_name': 'cluster1_02_aggr01', 'containing_aggregate_uuid': '5323f9cc-5daa-11f0-bb55-005056816f09', 'creation_time': '1752164710', 'dsid': '1027', 'extent_size': '4k', 'flexcache_endpoint_type': 'none', 'fsid': '1027', 'instance_uuid': '72e513a7-5daa-11f0-bb55-005056816f09', 'junction_path': '/', 'msid': '2158449702', 'name': 'ntap_svm01_nas_root', 'name_ordinal': 'base', 'node': 'cluster1-02', 'nodes': {'node_name': 'cluster1-02'}, 'owning_vserver_name': 'ntap-svm01-nas', 'owning_vserver_uuid': '71206676-5daa-11f0-bb55-005056816f09', 'provenance_uuid': '72e513a7-5daa-11f0-bb55-005056816f09', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': '72f313aa-5daa-11f0-bb55-005056816f09'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '502', 'files_set_maximum': 'false', 'files_total': '566', 'files_used': '103', 'inodefile_private_capacity': '622', 'inodefile_public_capacity': '566', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'true', 'is_create_ucode_enabled': 'true', 'language': 'C.UTF-8 (POSIX with UTF-8)', 'language_code': 'c.utf_8', 'nfs_character_set': 'utf-8|utf-8|Thu Oct  1 18:00:53 EDT 1998', 'oem_character_set': 'ascii|cp1|Thu Oct  1 18:00:53 EDT 1998'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'is_snapmirror_source': 'false', 'is_snapmirror_source_to_object_store': 'false', 'is_snapmirror_source_to_ontap': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'true', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_security_attributes': {'style': 'unix', 'volume_security_unix_attributes': {'group_id': '0', 'permissions': '755', 'user_id': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'false', 'is_sis_state_enabled': 'false', 'is_sis_volume': 'false', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'true', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '2', 'snapshot_policy': 'default'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'false', 'prefix': '(not specified)', 'target_free_space': '20', 'trigger': 'volume'}, 'volume_space_attributes': {'expected_available': '19472384', 'filesystem_size': '20971520', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '450560', 'logical_used_by_afs': '450560', 'logical_used_by_snapshots': '798720', 'logical_used_percent': '2', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '100', 'percentage_size_used': '2', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '27', 'physical_used': '21188608', 'physical_used_percent': '101', 'size': '20971520', 'size_available': '19472384', 'size_available_for_snapshots': '20234240', 'size_total': '19922944', 'size_used': '450560', 'size_used_by_snapshots': '286720', 'snapshot_reserve_available': '761856', 'snapshot_reserve_size': '1048576', 'space_full_threshold_percent': '98', 'space_guarantee': 'volume', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'true', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_junction_active': 'true', 'is_move_destination_in_cutover': 'false', 'is_moving': 'false', 'is_node_root': 'false', 'is_nvfail_enabled': 'false', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'is_volume_in_cutover': 'false', 'is_vserver_root': 'true', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+ok: [localhost] => (item={'encrypt': 'false', 'encryption_state': 'none', 'encryption_type': 'none', 'key_id': None, 'volume_antivirus_attributes': {'on_access_policy': 'default'}, 'volume_autobalance_attributes': {'is_autobalance_eligible': 'true'}, 'volume_autosize_attributes': {'grow_threshold_percent': '85', 'is_enabled': 'false', 'maximum_size': '25165824', 'minimum_size': '20971520', 'mode': 'off', 'shrink_threshold_percent': '50'}, 'volume_comp_aggr_attributes': {'aggressive_readahead_mode': 'none', 'cloud_retrieval_policy': 'default', 'is_cloud_write_enabled': 'false', 'tiering_policy': 'none'}, 'volume_directory_attributes': {'i2p_enabled': 'true', 'max_dir_size': '128764928', 'root_dir_gen': '167458412'}, 'volume_export_attributes': {'policy': 'default'}, 'volume_hybrid_cache_attributes': {'eligibility': 'read_write'}, 'volume_id_attributes': {'aggr_list': {'aggr_name': 'cluster1_02_aggr01'}, 'comment': None, 'containing_aggregate_name': 'cluster1_02_aggr01', 'containing_aggregate_uuid': '5323f9cc-5daa-11f0-bb55-005056816f09', 'creation_time': '1752164720', 'dsid': '1028', 'extent_size': '4k', 'flexcache_endpoint_type': 'none', 'fsid': '1028', 'instance_uuid': '78d29700-5daa-11f0-bb55-005056816f09', 'junction_path': '/', 'msid': '2158449703', 'name': 'ntap_svm02_san_root', 'name_ordinal': 'base', 'node': 'cluster1-02', 'nodes': {'node_name': 'cluster1-02'}, 'owning_vserver_name': 'ntap-svm02-san', 'owning_vserver_uuid': '764883f7-5daa-11f0-bb55-005056816f09', 'provenance_uuid': '78d29700-5daa-11f0-bb55-005056816f09', 'style': 'flex', 'style_extended': 'flexvol', 'type': 'rw', 'uuid': '78d86bf9-5daa-11f0-bb55-005056816f09'}, 'volume_inode_attributes': {'block_type': '64_bit', 'files_private_used': '502', 'files_set_maximum': 'false', 'files_total': '566', 'files_used': '101', 'inodefile_private_capacity': '622', 'inodefile_public_capacity': '566', 'inofile_version': '4'}, 'volume_language_attributes': {'is_convert_ucode_enabled': 'true', 'is_create_ucode_enabled': 'true', 'language': 'C.UTF-8 (POSIX with UTF-8)', 'language_code': 'c.utf_8', 'nfs_character_set': 'utf-8|utf-8|Thu Oct  1 18:00:53 EDT 1998', 'oem_character_set': 'ascii|cp1|Thu Oct  1 18:00:53 EDT 1998'}, 'volume_mirror_attributes': {'is_data_protection_mirror': 'false', 'is_load_sharing_mirror': 'false', 'is_move_mirror': 'false', 'is_replica_volume': 'false', 'is_snapmirror_source': 'false', 'is_snapmirror_source_to_object_store': 'false', 'is_snapmirror_source_to_ontap': 'false', 'mirror_transfer_in_progress': 'false', 'redirect_snapshot_id': '0'}, 'volume_performance_attributes': {'atime_update_period': '0', 'extent_enabled': 'off', 'fc_delegs_enabled': 'true', 'is_atime_update_enabled': 'true', 'is_preserve_unlink_enabled': 'false', 'max_write_alloc_blocks': '0', 'minimal_read_ahead': 'false', 'read_realloc': 'off', 'single_instance_data_logging': 'off'}, 'volume_security_attributes': {'style': 'unix', 'volume_security_unix_attributes': {'group_id': '0', 'permissions': '755', 'user_id': '0'}}, 'volume_sis_attributes': {'compression_space_saved': '0', 'deduplication_space_saved': '0', 'deduplication_space_shared': '0', 'is_sis_logging_enabled': 'false', 'is_sis_state_enabled': 'false', 'is_sis_volume': 'false', 'percentage_compression_space_saved': '0', 'percentage_deduplication_space_saved': '0', 'percentage_total_space_saved': '0', 'total_space_saved': '0'}, 'volume_snaplock_attributes': {'snaplock_type': 'non_snaplock'}, 'volume_snapshot_attributes': {'auto_snapshots_enabled': 'true', 'snapdir_access_enabled': 'true', 'snapshot_clone_dependency_enabled': 'false', 'snapshot_count': '2', 'snapshot_policy': 'default'}, 'volume_snapshot_autodelete_attributes': {'commitment': 'try', 'defer_delete': 'user_created', 'delete_order': 'oldest_first', 'destroy_list': 'none', 'is_autodelete_enabled': 'false', 'prefix': '(not specified)', 'target_free_space': '20', 'trigger': 'volume'}, 'volume_space_attributes': {'expected_available': '19578880', 'filesystem_size': '20971520', 'is_filesys_size_fixed': 'false', 'is_space_enforcement_logical': 'false', 'is_space_guarantee_enabled': 'true', 'is_space_reporting_logical': 'false', 'is_space_slo_enabled': 'true', 'is_used_stale': 'false', 'logical_used': '344064', 'logical_used_by_afs': '344064', 'logical_used_by_snapshots': '618496', 'logical_used_percent': '2', 'over_provisioned': '0', 'overwrite_reserve': '0', 'overwrite_reserve_required': '0', 'overwrite_reserve_used': '0', 'overwrite_reserve_used_actual': '0', 'percentage_fractional_reserve': '100', 'percentage_size_used': '1', 'percentage_snapshot_reserve': '5', 'percentage_snapshot_reserve_used': '25', 'physical_used': '21188608', 'physical_used_percent': '101', 'size': '20971520', 'size_available': '19578880', 'size_available_for_snapshots': '20369408', 'size_total': '19922944', 'size_used': '344064', 'size_used_by_snapshots': '258048', 'snapshot_reserve_available': '790528', 'snapshot_reserve_size': '1048576', 'space_full_threshold_percent': '98', 'space_guarantee': 'volume', 'space_mgmt_option_try_first': 'volume_grow', 'space_nearly_full_threshold_percent': '95', 'space_slo': 'none'}, 'volume_state_attributes': {'become_node_root_after_reboot': 'false', 'force_nvfail_on_dr': 'false', 'ignore_inconsistent': 'false', 'in_nvfailed_state': 'false', 'is_cluster_volume': 'true', 'is_constituent': 'false', 'is_flexgroup': 'false', 'is_flexgroup_qtree_enabled': 'false', 'is_inconsistent': 'false', 'is_invalid': 'false', 'is_junction_active': 'true', 'is_move_destination_in_cutover': 'false', 'is_moving': 'false', 'is_node_root': 'false', 'is_nvfail_enabled': 'false', 'is_protocol_access_fenced': 'false', 'is_quiesced_in_memory': 'false', 'is_quiesced_on_disk': 'false', 'is_smbc_failover_capable': 'false', 'is_smbc_master': 'false', 'is_unrecoverable': 'false', 'is_volume_in_cutover': 'false', 'is_vserver_root': 'true', 'state': 'online'}, 'volume_transition_attributes': {'is_cft_precommit': 'false', 'is_copied_for_transition': 'false', 'is_transitioned': 'false', 'transition_behavior': 'none'}})
+
+TASK [Print aligned volume summary table] **************************************
+ok: [localhost] => {
+    "msg": "Volume Name               Type     Aggregate                 Size         Security Style\n------------------------- -------- ------------------------- ------------ --------------\nvol0                      rw       aggr0_cluster1_01          24685490176 N/A           \\nvol0                      rw       aggr0_cluster1_02          24685490176 N/A           \\ncluster1_ad_root          rw       cluster1_01_aggr01            20971520 unix          \\nautoprov_vol              rw       cluster1_01_aggr01          1130258432 ntfs          \\nntap_svm01_nas_root       rw       cluster1_02_aggr01            20971520 unix          \\nntap_svm02_san_root       rw       cluster1_02_aggr01            20971520 unix          "
+}
+
+PLAY RECAP *********************************************************************
+localhost                  : ok=5    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
