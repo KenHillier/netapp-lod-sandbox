@@ -5,15 +5,18 @@
   vars:
     netapp_hostname: 192.168.0.101
     netapp_username: admin
+    netapp_password: Netapp1!
     svm_name: ntap-svm01-nas
+    # ntfs_path: '%2Fautoprov_vol'
+    ntfs_path: '/autoprov_vol'
 
-  vars_prompt:
-    - name: netapp_password
-      prompt: "NetApp Password"
-      private: yes
-    - name: ntfs_path
-      prompt: "Path (e.g. /autoprov_vol or /vol/share/dir)"
-      private: no
+  # vars_prompt:
+  #   - name: netapp_password
+  #     prompt: "NetApp Password"
+  #     private: yes
+  #   - name: ntfs_path
+  #     prompt: "Path (e.g. /autoprov_vol or /vol/share/dir)"
+  #     private: no
 
   tasks:
     - name: Get SVM UUID
@@ -35,6 +38,35 @@
       set_fact:
         svm_uuid: "{{ svm_info.json.records[0].uuid }}"
 
+    - name: Encode path (single)
+      set_fact:
+        ntfs_path_encoded_single: "{{ ntfs_path | urlencode }}"
+
+    - name: Encode path (double)
+      set_fact:
+        ntfs_path_encoded_double: "{{ ntfs_path | urlencode | urlencode }}"
+
+    - name: Encode path (no leading slash)
+      set_fact:
+        ntfs_path_encoded_noslash: "{{ (ntfs_path | regex_replace('^/', '')) | urlencode }}"
+    
+    - name: URL-encode the path
+      set_fact:
+        ntfs_path_encoded: "{{ ntfs_path | urlencode }}"
+    
+    - name: Encode path for NetApp REST (replace / with %2F)
+      set_fact:
+        ntfs_path_man_encoded: "{{ ntfs_path | replace('/', '%2F') }}"
+
+    - name: Debug encoded paths
+      debug:
+        msg:
+          - "Single: {{ ntfs_path_encoded_single }}"
+          - "Double: {{ ntfs_path_encoded_double }}"
+          - "NoSlash: {{ ntfs_path_encoded_noslash }}"
+          - "Manually Encoded: {{ ntfs_path_man_encoded }}"
+          - "Encoded: {{ ntfs_path_encoded }}"
+
     - name: URL-encode the path
       set_fact:
         ntfs_path_encoded: "{{ ntfs_path | urlencode }}"
@@ -42,6 +74,7 @@
     - name: Get NTFS ACLs for path
       uri:
         url: "https://{{ netapp_hostname }}/api/protocols/file-security/permissions/{{ svm_uuid }}/{{ ntfs_path_encoded }}"
+        # url: "https://{{ netapp_hostname }}/api/protocols/file-security/permissions/{{ svm_uuid }}/{{ ntfs_path }}"
         method: GET
         user: "{{ netapp_username }}"
         password: "{{ netapp_password }}"
@@ -67,5 +100,5 @@
               Access: {{ acl.access }}
               Apply To: {{ acl.apply_to | to_nice_json }}
               Rights: {{ acl.advanced_rights | default('N/A') | to_nice_json }}
-              Inherited: {{ acl.inherited }}
+              Inherited: {{ acl.inherited | default('N/A') }}
           {% endfor %}
