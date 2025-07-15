@@ -1,16 +1,28 @@
 # SMB Share Provisioning & ACL Management with Ansible on ONTAP
 
-This prototype demonstrates how to provision an SMB share on NetApp ONTAP using Ansible, with a focus on managing top-level directory ACLs.
-
 ## Goals
 
 - Provision a new SMB share via Ansible playbook.
 - Remove the default "Everyone / Full Control" permission from the top-level directory after share creation.
 
-## Usage
+This repository contains Ansible playbooks and supporting scripts for managing SMB shares and NTFS ACLs on NetApp ONTAP systems.  
+Key capabilities include:
 
-1. Use the provided Ansible playbook to create the SMB share.
-2. Apply file-level ACL changes to restrict permissions as required.
+- **Provisioning SMB shares** and displaying volume/share info (`vol_share_info.yml`)
+- **Setting NTFS ACLs** on top-level directories (`set_new_acls.yml`)
+- **Querying and displaying NTFS ACLs** via ONTAP REST API (`show_ntfs_acls.yml`)
+- **Reference and troubleshooting notes** for REST API usage and encoding requirements
+
+
+## Next Steps / TODO
+
+- Add playbooks to **remove default "Everyone / Full Control" ACL** after share creation
+- Add error handling and validation for path encoding and security style
+- Parameterize domain, SVM, and share names for easier reuse
+- Integrate reporting (e.g., export ACLs to CSV or HTML)
+- Add more examples for subdirectory ACL management
+- Document REST API quirks and encoding requirements for future users
+
 
 ## References
 
