@@ -17,10 +17,10 @@
   vars:
     netapp_hostname: 192.168.0.101
     svm_name: "ntap-svm01-nas"
-    # Autoprovisioning parameters
-    # These will be used to create a new volume and CIFS share
+
     volume_name: "auto_smb_share"
     volume_size: 1
+    volume_security_style: "ntfs"
     cifs_share_name: "auto_smb_share"
     cifs_acls:
       - { access: "full_control", user_or_group: "Domain Admins" }
@@ -42,10 +42,10 @@
         vserver: "{{ svm_name }}"
         size: "{{ volume_size }}"
         size_unit: "{{ volume_size_unit | default('gb') }}"
-        space_guarantee: none
-        snapshot_policy: default
+        space_guarantee: "{{ space_guarantee | ('none') }}"
+        snapshot_policy: "{{ snapshot_policy | default('default') }}"
         nas_application_template:
           cifs_access: "{{ cifs_acls }}"
           cifs_share_name: "{{ cifs_share_name }}"
           nfs_access: "{{ nfs_access }}"
-        volume_security_style: "ntfs"
+        volume_security_style: "{{ volume_security_style | ('ntfs') }}"

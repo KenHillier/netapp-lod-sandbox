@@ -18,15 +18,21 @@
     netapp_hostname: 192.168.0.101
     netapp_username: admin
     svm_name: "ntap-svm01-nas"
-    volume_name: "demo_vol"
+    aggr_name: "cluster1_01_aggr01"
+    volume_name: "demo_vol2"
     volume_size: "1"
     size_unit: "gb"
-    share_name: "demo_share"
-    junction_path: "/demo_vol"
+    share_name: "demo_share2"
+    junction_path: "/demo_vol2"
+    security_style: ntfs
+    set_acls:   true
     share_acls:
       - { state: "absent", target: "Everyone", ace: "full_control" }
       - { state: "present", target: "Domain Admins", ace: "full_control" }
-      - { state: "present", target: "Domain Users", ace: "write" }
+      - { state: "present", target: "Domain Users", ace: "change" }
+    file_acls:
+      - { state: "present", user: "Domain Admins", access: "access_allow", rights: "full_control" }
+      - { state: "present", user: "Domain Users", access: "access_allow", rights: "modify" }
 
   vars_prompt:
     - name: "netapp_password"
@@ -37,11 +43,13 @@
     - name: Create volume
       netapp.ontap.na_ontap_volume:
         state: present
+        vserver: "{{ svm_name }}"
+        aggregate_name: "{{ aggr_name }}"
         name: "{{ volume_name }}"
         size: "{{ volume_size }}"
         size_unit: "{{ size_unit }}"
-        vserver: "{{ svm_name }}"
         junction_path: "{{ junction_path }}"
+        volume_security_style: "{{ security_style | default(omit) }}"
         space_guarantee: none
 
     - name: Create SMB share
@@ -63,3 +71,32 @@
         user_or_group: "{{ item.target }}"
         permission: "{{ item.ace }}"
       loop: "{{ share_acls }}"
+    
+    - name: Replace Default ACLs with Authenticated Users
+      block:
+        - name: Delete ACL for file or directory security permissions.
+          netapp.ontap.na_ontap_file_security_permissions_acl:
+            vserver: "{{ svm_name }}"
+            access_control: file_directory
+            path: "{{ junction_path }}"
+            validate_changes: warn
+            access: access_allow
+            acl_user: "Everybody"
+            apply_to:
+              this_folder: true
+            state: absent
+
+        - name:
+          netapp.ontap.na_ontap_file_security_permissions_acl:
+            state: "{{ item.state }}"
+            vserver: "{{ svm_name }}"
+            access_control: file_directory
+            path: "{{ junction_path }}"
+            validate_changes: warn
+            access: "{{ item.access }}"
+            acl_user: "{{ item.user }}"
+            apply_to:
+              this_folder: true
+            rights: "{{ item.rights }}"
+          loop: "{{ file_acls }}"
+      when: set_acls is true

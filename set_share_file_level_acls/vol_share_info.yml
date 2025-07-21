@@ -132,12 +132,3 @@
           {{ line }}
           {% endfor %}
 
-# -----------------
-# Best Practices:
-# -----------------
-# - Use 'gather_facts: false' for localhost/reporting playbooks to speed up execution.
-# - Use 'module_defaults' to avoid repeating connection info.
-# - Use debug tasks (with 'when') for troubleshooting, and comment or remove them for production.
-# - Use descriptive task names and comments for maintainability.
-# - Use 'default' filters and 'when' conditions to avoid errors on missing attributes.
-# - Consider switching to REST modules for future-proofing (as ZAPI is deprecated).

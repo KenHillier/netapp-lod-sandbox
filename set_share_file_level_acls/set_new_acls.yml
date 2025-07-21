@@ -1,6 +1,6 @@
 ---
 - hosts: localhost
-  name: Set NTFS ACLs on a NetApp Volume Directory (Minimal Prompt)
+  name: Set NTFS ACLs on a NetApp Junction Path (Directory)
   gather_facts: false
 
   collections:
@@ -21,7 +21,6 @@
     vserver: ntap-svm01-nas
     domain: DEMO
     owner: "{{ domain }}\\Administrator"
-    # Default ACLs, can be overridden if needed
     default_acls:
       - access: access_allow
         user: "{{ domain }}\\Domain Admins"
@@ -54,7 +53,7 @@
       private: no
 
   tasks:
-    - name: Set NTFS permissions for root directory of the volume
+    - name: Add NTFS permissions for Domain Account permissions
       netapp.ontap.na_ontap_file_security_permissions:
         state: present
         vserver: "{{ vserver }}"
@@ -62,3 +61,41 @@
         path: "{{ junction_path }}"
         owner: "{{ owner }}"
         acls: "{{ default_acls }}"
+    
+    - name: Delete 'Everbody/Full_control' ACL permissions
+      netapp.ontap.na_ontap_file_security_permissions_acl:
+        vserver: "{{ vserver_name }}"
+        access_control: file_directory
+        path: "{{ file_mount_path }}"
+        validate_changes: warn
+        access: access_allow
+        acl_user: "Everybody"
+        apply_to:
+          this_folder: true
+        state: absent
+    
+    - name: Modify ACL for file or directory security permissions.
+      netapp.ontap.na_ontap_file_security_permissions_acl:
+        vserver: "{{ vserver_name }}"
+        access_control: file_directory
+        path: "{{ file_mount_path }}"
+        validate_changes: warn
+        access: access_allow
+        acl_user: "user1"
+        apply_to:
+          this_folder: true
+        advanced_rights:
+          append_data: false
+          delete: true
+
+    - name: Delete ACL for file or directory security permissions.
+      netapp.ontap.na_ontap_file_security_permissions_acl:
+        vserver: "{{ vserver_name }}"
+        access_control: file_directory
+        path: "{{ file_mount_path }}"
+        validate_changes: warn
+        access: access_allow
+        acl_user: "Everybody"
+        apply_to:
+          this_folder: true
+        state: absent
