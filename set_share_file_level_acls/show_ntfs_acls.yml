@@ -7,7 +7,7 @@
     netapp_username:  admin
     netapp_password:  Netapp1!
     svm_name:         ntap-svm01-nas
-    ntfs_path:        '/demo_vol2'
+    ntfs_path:        '/demo_vol3'
     # ntfs_path:        '/autoprov_vol'
 
   # vars_prompt:
