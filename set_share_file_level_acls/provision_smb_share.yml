@@ -22,7 +22,7 @@
     volume_name: "demo_vol3"
     volume_size: "1"
     size_unit: "gb"
-    share_name: "{{ volume_name }}
+    share_name: "{{ volume_name }}"
     junction_path: "/{{ volume_name }}"
     security_style: ntfs
     set_acls:   true
