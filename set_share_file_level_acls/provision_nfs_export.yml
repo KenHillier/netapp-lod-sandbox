@@ -35,6 +35,21 @@
     # maximum_size:     10g           # 20% greater than vol size when set
     # minimum_size:     21m           # vol size when set
     # shrink_threshold_percent: 40    # Defaults to 50%
+    nfs_acls:
+      - export_policy:        "{{ export_policy }}"
+        rule_index:           "1"
+        client_match:         "192.168.0.61/32"
+        ro_rule:              ["any"]
+        rw_rule:              ["any"]
+        protocol:             ["nfs"]
+        super_user_security:  ["any"]
+      - export_policy:        "{{ export_policy }}"
+        rule_index:           "2"
+        client_match:         "0.0.0.0/0"
+        ro_rule:              ["any"]
+        rw_rule:              ["none"]
+        protocol:             ["nfs"]
+        super_user_security:  ["any"]
 
   vars_prompt:
     - name: "netapp_password"
@@ -44,7 +59,7 @@
   tasks:
     - name: Create FlexVol for NFS
       netapp.ontap.na_ontap_volume:
-        state:                      "{{ state | default('present') }}"
+        state:                      "{{ state                   | default('present') }}"
         vserver:                    "{{ svm_name }}"
         name:                       "{{ volume_name }}"
         aggregate_name:             "{{ aggr_name }}"
@@ -80,17 +95,20 @@
 
     - name: Ensure export policy exists
       netapp.ontap.na_ontap_export_policy:
-        state:                "{{ state | default('present') }}"
-        vserver:              "{{ svm_name }}"
-        name:                 "{{ export_policy }}"
+        state:                      "{{ state                   | default('present') }}"
+        vserver:                    "{{ svm_name }}"
+        name:                       "{{ export_policy }}"
 
     - name: Add export rule to policy
       netapp.ontap.na_ontap_export_policy_rule:
-        state:                "{{ state | default('present') }}"
-        vserver:              "{{ svm_name }}"
-        policy_name:          "{{ export_policy }}"
-        client_match:         "0.0.0.0/0"
-        ro_rule:              ["any"]
-        rw_rule:              ["any"]
-        protocol:             ["nfs"]
-        super_user_security:  ["any"]
+        state:                      "{{ state                   | default('present') }}"
+        vserver:                    "{{ svm_name }}"
+        policy_name:                "{{ item.export_policy }}"
+        rule_index:                 "{{ item.rule_index }}"
+        client_match:               "{{ item.client_match }}"
+        ro_rule:                    "{{ item.ro_rule }}"
+        rw_rule:                    "{{ item.rw_rule }}"
+        protocol:                   "{{ item.protocol }}"
+        super_user_security:        "{{ item.super_user_security }}"
+      loop: "{{ nfs_acls }}"
+      when: nfs_acls is defined
