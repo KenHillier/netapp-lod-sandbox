@@ -1,0 +1,96 @@
+---
+- hosts: localhost
+  name: Provision NFS Export on ONTAP
+  gather_facts: false
+  collections:
+    - netapp.ontap
+
+  module_defaults:
+    group/netapp.ontap.netapp_ontap:
+      hostname: "{{ netapp_hostname }}"
+      username: "{{ netapp_username }}"
+      password: "{{ netapp_password }}"
+      https: true
+      validate_certs: false
+      use_rest: auto
+
+  vars:
+    netapp_hostname:  192.168.0.101
+    netapp_username:  admin
+    svm_name:         "ntap-svm01-nas"
+    aggr_name:        "cluster1_01_aggr01"
+    volume_name:      "demo_nfs_vol_01"
+    junction_path:    "/{{ volume_name }}"
+    size:             1
+    size_unit:        gb            # Defaults to 'gd'
+    export_policy:    default       # Defaults to 'default'
+    security_style:   unix          # Defaults to 'unix'
+    user_id:          1001          # Defaults to UID 0
+    group_id:         2002          # Defaults to GID 0
+    unix_permissions: "0777"        # Defaults to '0755'
+    autosize_mode:    grow_shrink   # Defaults to off
+    # size_change_threshold: 0        # Defaults to 10%
+    # grow_threshold_percent: 99      # Defaults to 85 - 98% (depending on voume size)
+    # increment_size:   50m  
+    # maximum_size:     10g           # 20% greater than vol size when set
+    # minimum_size:     21m           # vol size when set
+    # shrink_threshold_percent: 40    # Defaults to 50%
+
+  vars_prompt:
+    - name: "netapp_password"
+      prompt: "Enter the NetApp Admin Password"
+      private: yes
+
+  tasks:
+    - name: Create FlexVol for NFS
+      netapp.ontap.na_ontap_volume:
+        state:                      "{{ state | default('present') }}"
+        vserver:                    "{{ svm_name }}"
+        name:                       "{{ volume_name }}"
+        aggregate_name:             "{{ aggr_name }}"
+        size:                       "{{ size }}"
+        size_unit:                  "{{ size_unit               | default(omit) }}"
+        junction_path:              "{{ junction_path           | default(omit) }}"
+        volume_security_style:      "{{ security_style          | default(omit) }}"
+        user_id:                    "{{ user_id                 | default(omit) }}"
+        group_id:                   "{{ group_id                | default(omit) }}"
+        unix_permissions:           "{{ unix_permissions        | default(omit) }}"
+        space_guarantee:            "{{ space_guarantee         | default(omit) }}"
+        snapshot_policy:            "{{ snapshot_policy         | default(omit) }}"
+        percent_snapshot_space:     "{{ percent_snapshot_space  | default(omit) }}"
+        tiering_policy:             "{{ tiering_policy          | default(omit) }}"
+        export_policy:              "{{ export_policy           | default(omit) }}"
+        qos_adaptive_policy_group:  "{{ adaptive_qos            | default(omit) }}"
+        qos_policy_group:           "{{ qos                     | default(omit) }}"
+        logical_space_reporting:    "{{ logical_space_reporting | default(omit) }}"
+        wait_for_completion:        "{{ wait_for_completion     | default(omit) }}"
+
+    - name: Set volume autosize
+      netapp.ontap.na_ontap_volume_autosize:
+        vserver:                    "{{ svm_name }}"
+        volume:                     "{{ volume_name }}"
+        mode:                       "{{ autosize_mode }}"
+        grow_threshold_percent:     "{{ grow_threshold_percent  | default(omit) }}"
+        increment_size:             "{{ increment_size          | default(omit) }}"
+        maximum_size:               "{{ maximum_size            | default(omit) }}"
+        minimum_size:               "{{ minimum_size            | default(omit) }}"
+        shrink_threshold_percent:   "{{ shrink_threshold_percent | default(omit) }}"
+      when: autosize_mode is defined
+
+
+    - name: Ensure export policy exists
+      netapp.ontap.na_ontap_export_policy:
+        state:                "{{ state | default('present') }}"
+        vserver:              "{{ svm_name }}"
+        name:                 "{{ export_policy }}"
+
+    - name: Add export rule to policy
+      netapp.ontap.na_ontap_export_policy_rule:
+        state:                "{{ state | default('present') }}"
+        vserver:              "{{ svm_name }}"
+        policy_name:          "{{ export_policy }}"
+        client_match:         "0.0.0.0/0"
+        ro_rule:              ["any"]
+        rw_rule:              ["any"]
+        protocol:             ["nfs"]
+        super_user_security:  ["any"]
