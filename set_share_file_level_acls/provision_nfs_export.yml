@@ -37,14 +37,14 @@
     # shrink_threshold_percent: 40    # Defaults to 50%
     nfs_acls:
       - export_policy:        "{{ export_policy }}"
-        rule_index:           "1"
+        rule_index:           1
         client_match:         "192.168.0.61/32"
         ro_rule:              ["any"]
         rw_rule:              ["any"]
         protocol:             ["nfs"]
         super_user_security:  ["any"]
       - export_policy:        "{{ export_policy }}"
-        rule_index:           "2"
+        rule_index:           2
         client_match:         "0.0.0.0/0"
         ro_rule:              ["any"]
         rw_rule:              ["none"]
