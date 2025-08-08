@@ -19,7 +19,7 @@
     netapp_username:  admin
     svm_name:         "ntap-svm01-nas"
     aggr_name:        "cluster1_01_aggr01"
-    volume_name:      "demo_nfs_vol_01"
+    volume_name:      "demo_nfs_vol_02"
     junction_path:    "/{{ volume_name }}"
     size:             1
     size_unit:        gb            # Defaults to 'gd'
