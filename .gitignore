@@ -1,5 +1,6 @@
 # Custom Exclusions
 *.zip
+.lock
 
 # MacOS GITIGNORE
 # Source: https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
