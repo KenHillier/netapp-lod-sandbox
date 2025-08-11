@@ -23,11 +23,8 @@
     junction_path:    "/{{ volume_name }}"
     size:             1
     size_unit:        gb            # Defaults to 'gd'
-    export_policy:    default       # Defaults to 'default'
     security_style:   unix          # Defaults to 'unix'
-    user_id:          1001          # Defaults to UID 0
-    group_id:         2002          # Defaults to GID 0
-    unix_permissions: "0777"        # Defaults to '0755'
+
     autosize_mode:    grow_shrink   # Defaults to off
     # size_change_threshold: 0        # Defaults to 10%
     # grow_threshold_percent: 99      # Defaults to 85 - 98% (depending on voume size)
@@ -35,6 +32,12 @@
     # maximum_size:     10g           # 20% greater than vol size when set
     # minimum_size:     21m           # vol size when set
     # shrink_threshold_percent: 40    # Defaults to 50%
+    
+    export_policy:    default       # Defaults to 'default'
+    user_id:          1001          # Defaults to UID 0
+    group_id:         2002          # Defaults to GID 0
+    unix_permissions: "0777"        # Defaults to '0755'
+    
     nfs_acls:
       - export_policy:        "{{ export_policy }}"
         rule_index:           1
@@ -57,7 +60,7 @@
       private: yes
 
   tasks:
-    - name: Create FlexVol for NFS
+    - name: Create UNIX volume for NFS
       netapp.ontap.na_ontap_volume:
         state:                      "{{ state                   | default('present') }}"
         vserver:                    "{{ svm_name }}"
