@@ -32,10 +32,20 @@ def load_yaml(path: str | None, default: Any = None) -> Any:
     return default if data is None else data
 
 
+def prompt_for_password() -> str:
+    """Prompt for a password when it is not available from config or environment."""
+    try:
+        import getpass
+        return getpass.getpass("StorageGRID password: ")
+    except (EOFError, KeyboardInterrupt):
+        raise SystemExit("Password entry canceled.")
+
+
 def resolve_connection(args: argparse.Namespace, auth_config: dict[str, Any]) -> dict[str, Any]:
     """Merge CLI flags, the auth config file, and environment variables into connection settings.
 
     Precedence: CLI flag > auth config file > environment variable.
+    If password is still missing, prompt interactively.
     """
     auth_config = auth_config or {}
 
@@ -45,7 +55,10 @@ def resolve_connection(args: argparse.Namespace, auth_config: dict[str, Any]) ->
     ca_bundle = args.ca_bundle or auth_config.get("ca_bundle") or os.getenv("STORAGEGRID_CA_BUNDLE")
     insecure = args.insecure or bool(auth_config.get("insecure", False))
 
-    missing = [name for name, value in (("host", host), ("username", username), ("password", password)) if not value]
+    if not password:
+        password = prompt_for_password()
+
+    missing = [name for name, value in (("host", host), ("username", username)) if not value]
     if missing:
         raise SystemExit(
             "Missing required connection settings: " + ", ".join(missing) +
