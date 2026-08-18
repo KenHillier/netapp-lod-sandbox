@@ -1,10 +1,11 @@
 # StorageGRID traffic classification
 
-The folder has three small scripts:
+The folder has four small scripts:
 
 - [storagegrid_auth.py](storagegrid_auth.py) — shared login and health check.
 - [storagegrid_tenants.py](storagegrid_tenants.py) — create test tenants and buckets.
 - [storagegrid_traffic_classification.py](storagegrid_traffic_classification.py) — list or apply traffic-classification policies.
+- [storagegrid_tc_policy_yaml.py](storagegrid_tc_policy_yaml.py) — list tenant names and draft monitor-only policy YAML for later apply.
 
 Keep each config file separate: auth, tenant data, and policy data stay in different YAML files.
 
@@ -64,6 +65,16 @@ python3 storagegrid_traffic_classification.py list --auth-config auth.local.yaml
 ```
 
 A policy name does not guarantee the API includes an ingress or egress matcher. The raw JSON shows what is actually configured on the grid.
+
+### Generate monitor-only YAML from current tenants
+
+```bash
+python3 storagegrid_tc_policy_yaml.py list --auth-config auth.local.yaml
+python3 storagegrid_tc_policy_yaml.py template \
+  --auth-config auth.local.yaml --output policies.monitor.yaml
+```
+
+This creates a YAML draft with one monitor-only policy per tenant name, which can then be reviewed and applied with the main policy script.
 
 ### Create or update policies
 
