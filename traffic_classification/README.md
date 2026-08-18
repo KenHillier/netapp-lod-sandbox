@@ -138,7 +138,11 @@ For full control, use the raw API schema with `matchers` and `limits` keys. See
 
 These scripts are intended to be run in a StorageGRID lab environment such as the NetApp LabOnDemand training and demo environments. If you are working in a lab that already exposes the grid endpoint, the scripts here are designed to be used directly against that environment with the standard `auth.local.yaml` flow.
 
-This is especially relevant for the StorageGRID labs used for tenant and traffic-classification exercises, including the NetApp customer-facing lab experience. If you are using this in that environment, the workflow is simply: authenticate, list or inspect tenants and policies, then generate or apply the policy YAML as needed.
+For example, the lab environment used for this workflow is here: https://labondemand.netapp.com/node/1523
+
+The customer-facing lab experience is here: https://labondemand.netapp.com/lab/gsstg-hol
+
+This is especially relevant for the StorageGRID labs used for tenant and traffic-classification exercises. If you are using this in that environment, the workflow is simply: authenticate, list or inspect tenants and policies, then generate or apply the policy YAML as needed.
 
 ## CLI overrides
 
