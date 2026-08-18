@@ -1,162 +1,218 @@
 #!/usr/bin/env python3
-"""List and manage StorageGRID traffic classification policies."""
+"""List and apply StorageGRID traffic classification policies.
+
+Usage:
+    storagegrid_traffic_classification.py list  --auth-config auth.local.yaml
+    storagegrid_traffic_classification.py apply --auth-config auth.local.yaml --policies-config policies.local.yaml
+
+Run storagegrid_auth.py first to verify connectivity (see its --help).
+See auth.example.yaml and policies.example.yaml for the input file formats.
+"""
 
 import argparse
 import json
-import os
 import sys
 from typing import Any
 
 import requests
 import urllib3
+import yaml
+
+from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
-HEALTH_PATH = "/api/v3/grid/config/product-version"
-POLICIES_PATH = "/api/v3/grid/config/traffic-classes"
+POLICIES_PATH = "/api/v3/grid/traffic-classes/policies"
+ACCOUNTS_PATH = "/api/v3/grid/accounts"
+
+LIMIT_TYPES = (
+    "aggregateBandwidthIn",
+    "aggregateBandwidthOut",
+    "perRequestBandwidthIn",
+    "perRequestBandwidthOut",
+    "concurrentReadRequests",
+    "concurrentWriteRequests",
+)
 
 
-def normalize_host(host: str) -> str:
-    """Add the default HTTPS scheme when the host is supplied as an IP or name."""
-    host = host.strip().rstrip("/")
-    if not host.startswith(("http://", "https://")):
-        host = f"https://{host}"
-    return host
+# --------------------------------------------------------------------------
+# Policy API calls
+# --------------------------------------------------------------------------
+
+def list_policies(client: StorageGRIDClient) -> Any:
+    return client.get(POLICIES_PATH)
 
 
-def extract_token(response: requests.Response) -> str:
-    """Extract a StorageGRID bearer token from supported authorization responses."""
-    payload = response.json()
-    if isinstance(payload, str):
+def find_policy_id(client: StorageGRIDClient, name: str) -> str | None:
+    records = list_policies(client).get("data", [])
+    return next((item["id"] for item in records if item.get("name") == name), None)
+
+
+def apply_policy(client: StorageGRIDClient, payload: dict[str, Any]) -> Any:
+    """Create the policy, or update it in place if a policy with the same name exists."""
+    existing_id = find_policy_id(client, payload["name"])
+    if existing_id:
+        response = client.put(f"{POLICIES_PATH}/{existing_id}", payload)
+    else:
+        response = client.post(POLICIES_PATH, payload)
+    return response.json() if response.content else {"status": response.status_code}
+
+
+def resolve_tenant_id(client: StorageGRIDClient, tenant_name: str) -> str:
+    """Look up a tenant account id by its name (tenant names double as application IDs)."""
+    accounts = client.get(ACCOUNTS_PATH).get("data", [])
+    matches = [account["id"] for account in accounts if account.get("name") == tenant_name]
+    if not matches:
+        raise ValueError(f"No tenant account named '{tenant_name}' was found")
+    if len(matches) > 1:
+        raise ValueError(f"Multiple tenant accounts are named '{tenant_name}'; use 'tenant' with the exact account id instead")
+    return matches[0]
+
+
+# --------------------------------------------------------------------------
+# Policy payload construction
+# --------------------------------------------------------------------------
+
+def build_matcher(match_type: str, value: Any) -> dict[str, Any]:
+    members = value if isinstance(value, list) else [value]
+    return {"type": match_type, "inverse": False, "members": members}
+
+
+def build_policy_payload(policy: dict[str, Any]) -> dict[str, Any]:
+    """Translate a policy definition from the config file into the StorageGRID API schema.
+
+    Supports simplified keys (bucket/tenant/ip/limit/limit_type) or the raw
+    matchers/limits arrays for full control. Omit "limit" for a monitor-only
+    policy (metrics only, no enforcement). Omit all matcher keys for a
+    grid-wide policy.
+    """
+    if "name" not in policy:
+        raise ValueError("Each policy in the config file must have a 'name'")
+
+    if "matchers" in policy or "limits" in policy:
+        payload: dict[str, Any] = {"name": policy["name"], "matchers": policy.get("matchers", [])}
+        if "description" in policy:
+            payload["description"] = policy["description"]
+        if "limits" in policy:
+            payload["limits"] = policy["limits"]
         return payload
-    if isinstance(payload, dict):
-        token_keys = ("token", "apiToken", "access_token", "accessToken")
-        values = [payload]
-        while values:
-            value = values.pop()
-            if isinstance(value, dict):
-                for key in token_keys:
-                    if isinstance(value.get(key), str):
-                        return value[key]
-                data = value.get("data")
-                if isinstance(data, str) and data:
-                    return data
-                values.extend(item for key, item in value.items() if key != "data")
-            elif isinstance(value, list):
-                values.extend(value)
-    response_keys = ", ".join(payload.keys()) if isinstance(payload, dict) else type(payload).__name__
-    raise ValueError(
-        "StorageGRID authorization response did not contain a bearer token "
-        f"(response keys/type: {response_keys})"
-    )
+
+    matchers = []
+    if policy.get("bucket"):
+        matchers.append(build_matcher("bucket", policy["bucket"]))
+    if policy.get("tenant"):
+        matchers.append(build_matcher("tenant", policy["tenant"]))
+    if policy.get("ip"):
+        matchers.append(build_matcher("cidr", policy["ip"]))
+
+    payload = {"name": policy["name"], "matchers": matchers}
+    if policy.get("description"):
+        payload["description"] = policy["description"]
+    if policy.get("limit") is not None:
+        limit_type = policy.get("limit_type", "aggregateBandwidthIn")
+        if limit_type not in LIMIT_TYPES:
+            raise ValueError(f"Unsupported limit_type '{limit_type}' for policy '{policy['name']}'")
+        payload["limits"] = [{"type": limit_type, "value": policy["limit"]}]
+    return payload
 
 
-class StorageGRIDClient:
-    def __init__(self, host: str, username: str, password: str, verify: bool = True):
-        self.base_url = normalize_host(host)
-        self.session = requests.Session()
-        self.session.verify = verify
-        response = self.session.post(
-            f"{self.base_url}/api/v3/authorize",
-            json={"username": username, "password": password},
-            timeout=30,
-        )
-        response.raise_for_status()
-        token = extract_token(response)
-        self.session.headers.update(
-            {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-        )
+# --------------------------------------------------------------------------
+# Commands
+# --------------------------------------------------------------------------
 
-    def list_policies(self) -> Any:
-        response = self.session.get(f"{self.base_url}{POLICIES_PATH}", timeout=30)
-        response.raise_for_status()
-        return response.json()
-
-    def health(self) -> Any:
-        response = self.session.get(f"{self.base_url}{HEALTH_PATH}", timeout=30)
-        response.raise_for_status()
-        return response.json()
-
-    def set_policy(self, policy: dict[str, Any]) -> Any:
-        policies = self.list_policies()
-        records = policies.get("records", policies) if isinstance(policies, dict) else policies
-        existing = next(
-            (item for item in records if item.get("name") == policy.get("name")), None
-        )
-
-        if existing and existing.get("id"):
-            url = f"{self.base_url}{POLICIES_PATH}/{existing['id']}"
-            response = self.session.put(url, json=policy, timeout=30)
-        else:
-            response = self.session.post(
-                f"{self.base_url}{POLICIES_PATH}", json=policy, timeout=30
-            )
-        response.raise_for_status()
-        return response.json() if response.content else {"status": response.status_code}
+def cmd_apply(client: StorageGRIDClient, policies: list[dict[str, Any]]) -> list[Any]:
+    if not policies:
+        raise ValueError("No policies defined. Point --policies-config at a YAML file with a list of policies.")
+    return [apply_policy(client, build_policy_payload(resolve_tenant_name(client, policy))) for policy in policies]
 
 
-def build_policy(args: argparse.Namespace) -> dict[str, Any]:
-    matchers = {}
-    if args.bucket:
-        matchers["bucket"] = args.bucket
-    if args.tenant:
-        matchers["tenant"] = args.tenant
-    if args.ip:
-        matchers["ip"] = args.ip
-
-    policy: dict[str, Any] = {"name": args.name, "matchers": matchers}
-    if args.description:
-        policy["description"] = args.description
-    if args.limit:
-        policy["limits"] = {"bandwidth": args.limit}
+def resolve_tenant_name(client: StorageGRIDClient, policy: dict[str, Any]) -> dict[str, Any]:
+    """Replace a policy's 'tenant_name' (application ID) with the matching 'tenant' account id."""
+    if "tenant_name" not in policy:
+        return policy
+    policy = dict(policy)
+    policy["tenant"] = resolve_tenant_id(client, policy.pop("tenant_name"))
     return policy
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("health", "list", "set"))
-    parser.add_argument("--host", default=os.getenv("STORAGEGRID_HOST"), required=not os.getenv("STORAGEGRID_HOST"))
-    parser.add_argument("--username", default=os.getenv("STORAGEGRID_USERNAME"), required=not os.getenv("STORAGEGRID_USERNAME"))
-    parser.add_argument("--password", default=os.getenv("STORAGEGRID_PASSWORD"), required=not os.getenv("STORAGEGRID_PASSWORD"))
+# --------------------------------------------------------------------------
+# Summary output (opt-in recap alongside the raw JSON)
+# --------------------------------------------------------------------------
+
+def summarize_policy(record: dict[str, Any]) -> str:
+    parts = [record.get("name", "?")]
+    matchers = record.get("matchers")
+    if matchers:
+        parts.append("matchers=" + ",".join(f"{m.get('type')}:{','.join(m.get('members', []))}" for m in matchers))
+    elif matchers is not None:
+        parts.append("matchers=grid-wide")
+    limits = record.get("limits")
+    if limits:
+        parts.append("limits=" + ",".join(f"{l.get('type')}={l.get('value')}" for l in limits))
+    elif limits is not None:
+        parts.append("monitor-only")
+    return " | ".join(parts)
+
+
+def print_summary(result: Any) -> None:
+    if isinstance(result, dict):
+        records = result.get("data", [])
+    elif isinstance(result, list):
+        records = [item["data"] for item in result if isinstance(item, dict) and "data" in item]
+    else:
+        records = []
+    print("--- summary ---")
+    for record in records:
+        print(summarize_policy(record))
+
+
+# --------------------------------------------------------------------------
+# CLI
+# --------------------------------------------------------------------------
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("command", choices=("list", "apply"))
+    parser.add_argument("--auth-config", help="YAML file with connection settings (see auth.example.yaml)")
+    parser.add_argument("--policies-config", help="YAML file with a list of policies (see policies.example.yaml), required for apply")
+    parser.add_argument("--host", default=None, help="Overrides --auth-config / STORAGEGRID_HOST")
+    parser.add_argument("--username", default=None, help="Overrides --auth-config / STORAGEGRID_USERNAME")
+    parser.add_argument("--password", default=None, help="Overrides --auth-config / STORAGEGRID_PASSWORD")
     parser.add_argument("--insecure", action="store_true", help="Disable TLS certificate verification")
-    parser.add_argument(
-        "--ca-bundle",
-        default=os.getenv("STORAGEGRID_CA_BUNDLE"),
-        help="Path to a CA bundle used to verify the StorageGRID certificate",
-    )
-    parser.add_argument("--name", help="Policy name (required for set)")
-    parser.add_argument("--description")
-    parser.add_argument("--bucket", help="Bucket name matcher")
-    parser.add_argument("--tenant", help="Tenant account ID matcher")
-    parser.add_argument("--ip", help="Client IP or CIDR matcher")
-    parser.add_argument("--limit", type=int, help="Bandwidth limit in bytes per second")
-    args = parser.parse_args()
-    if args.command == "set" and not args.name:
-        parser.error("set requires --name")
-    return args
+    parser.add_argument("--ca-bundle", default=None, help="Path to a CA bundle used to verify the certificate")
+    parser.add_argument("--summary", action="store_true", help="Also print a short recap after the raw JSON output")
+    return parser.parse_args(argv)
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     try:
-        verify = False if args.insecure else (args.ca_bundle or True)
-        if args.insecure:
+        auth_config = load_yaml(args.auth_config, default={})
+        connection = resolve_connection(args, auth_config)
+        if connection["verify"] is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        client = StorageGRIDClient(args.host, args.username, args.password, verify)
-        if args.command == "health":
-            result = client.health()
-        elif args.command == "list":
-            result = client.list_policies()
+
+        client = StorageGRIDClient(**connection)
+
+        if args.command == "list":
+            result = list_policies(client)
         else:
-            result = client.set_policy(build_policy(args))
+            policies = load_yaml(args.policies_config, default=[])
+            result = cmd_apply(client, policies)
+
         print(json.dumps(result, indent=2))
+        if args.summary:
+            print_summary(result)
     except requests.exceptions.SSLError as error:
         print(f"StorageGRID TLS verification failed: {error}", file=sys.stderr)
-        print("For a lab certificate, retry with --insecure; preferably use --ca-bundle /path/to/ca.pem.", file=sys.stderr)
+        print("For a lab certificate, set insecure: true in the config, or provide ca_bundle.", file=sys.stderr)
         return 1
     except requests.RequestException as error:
         print(f"StorageGRID API request failed: {error}", file=sys.stderr)
         if error.response is not None:
             print(error.response.text, file=sys.stderr)
+        return 1
+    except (ValueError, yaml.YAMLError) as error:
+        print(f"Configuration error: {error}", file=sys.stderr)
         return 1
     return 0
 
