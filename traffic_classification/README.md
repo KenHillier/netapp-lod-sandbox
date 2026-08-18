@@ -29,6 +29,8 @@ Set the password via environment variable, not the config file:
 export STORAGEGRID_PASSWORD='...'
 ```
 
+Note: If no password is provided by any other means, the user will be prompted for the password.
+
 ## Commands
 
 ### Check auth and connectivity
