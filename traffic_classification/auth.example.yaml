@@ -1,0 +1,13 @@
+# StorageGRID connection settings. Copy to auth.local.yaml (gitignored).
+
+# Fields:
+#   host        Required. Grid IP/hostname (https:// assumed if omitted).
+#   username    Required. Grid Manager username.
+#   password    Optional. Prefer `export STORAGEGRID_PASSWORD=...` instead.
+#   insecure    Optional. true to skip TLS verification (self-signed lab certs).
+#   ca_bundle   Optional. Path to a CA bundle; preferred over insecure.
+
+host: 192.168.0.80
+username: root
+insecure: true
+# ca_bundle: /path/to/storagegrid-ca.pem
