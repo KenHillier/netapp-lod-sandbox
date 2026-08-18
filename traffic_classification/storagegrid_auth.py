@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""Authenticate to StorageGRID and run a basic health check.
+"""Authenticate to StorageGRID and check connectivity.
 
 Usage:
     storagegrid_auth.py --auth-config auth.local.yaml
-
-Import StorageGRIDClient/load_yaml/resolve_connection from this module to
-build other StorageGRID scripts (see storagegrid_traffic_classification.py).
 """
 
 import argparse

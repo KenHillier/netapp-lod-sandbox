@@ -1,19 +1,12 @@
 # StorageGRID traffic classification
 
-Three scripts:
+The folder has three small scripts:
 
-- [storagegrid_auth.py](storagegrid_auth.py) — foundation module. Authenticates
-  and runs a basic health check. Import `StorageGRIDClient`, `load_yaml`, and
-  `resolve_connection` from here to build other StorageGRID scripts.
-- [storagegrid_tenants.py](storagegrid_tenants.py) — creates test tenants and
-  buckets. A tenant's `name` doubles as an application ID (e.g. `appid_001`).
-- [storagegrid_traffic_classification.py](storagegrid_traffic_classification.py) —
-  imports the foundation module and focuses only on listing/applying traffic
-  classification policies. Policies can reference a tenant by `tenant_name`
-  (the application ID) instead of its StorageGRID account id.
+- [storagegrid_auth.py](storagegrid_auth.py) — shared login and health check.
+- [storagegrid_tenants.py](storagegrid_tenants.py) — create test tenants and buckets.
+- [storagegrid_traffic_classification.py](storagegrid_traffic_classification.py) — list or apply traffic-classification policies.
 
-Connection settings, tenant/bucket definitions, and policy definitions each
-live in their own config file, so credentials never mix with test data.
+Keep each config file separate: auth, tenant data, and policy data stay in different YAML files.
 
 ## Setup
 
@@ -37,39 +30,53 @@ export STORAGEGRID_PASSWORD='...'
 
 ## Commands
 
-Verify connectivity and authentication:
+### Check auth and connectivity
 
 ```bash
 python3 storagegrid_auth.py --auth-config auth.local.yaml
 ```
 
-Create the test tenants and buckets defined in `tenants.local.yaml` (creates
-if missing; resets the tenant root password and adds any missing buckets if
-they already exist):
+### Create test tenants and buckets
 
 ```bash
 python3 storagegrid_tenants.py apply \
   --auth-config auth.local.yaml --tenants-config tenants.local.yaml
 ```
 
-List existing tenant accounts:
+### List tenant accounts
 
 ```bash
 python3 storagegrid_tenants.py list --auth-config auth.local.yaml
 ```
 
-List existing traffic classification policies:
+### List traffic-classification policies
+
+This prints the raw StorageGRID API JSON response:
 
 ```bash
 python3 storagegrid_traffic_classification.py list --auth-config auth.local.yaml
 ```
 
-Create or update every policy defined in `policies.local.yaml` (matched and
-updated in place by `name`):
+Add `--summary` to print a shorter cleaned summary after the raw JSON:
+
+```bash
+python3 storagegrid_traffic_classification.py list --auth-config auth.local.yaml --summary
+```
+
+A policy name does not guarantee the API includes an ingress or egress matcher. The raw JSON shows what is actually configured on the grid.
+
+### Create or update policies
 
 ```bash
 python3 storagegrid_traffic_classification.py apply \
   --auth-config auth.local.yaml --policies-config policies.local.yaml
+```
+
+Add `--summary` to show the compact policy recap after the raw API response:
+
+```bash
+python3 storagegrid_traffic_classification.py apply \
+  --auth-config auth.local.yaml --policies-config policies.local.yaml --summary
 ```
 
 ## Config file reference
@@ -79,31 +86,30 @@ python3 storagegrid_traffic_classification.py apply \
 ```yaml
 host: 192.168.0.80
 username: root
-insecure: true          # only for a lab grid with a self-signed certificate
+insecure: true          # self-signed lab certs
 # ca_bundle: /path/to/storagegrid-ca.pem
 ```
 
 `tenants.local.yaml`:
 
 ```yaml
-- name: appid_001              # tenant name doubles as the application ID
-  password: Netapp1!Tenant     # sets/resets the tenant root password each run
+- name: appid_001              # tenant name is also the app ID
+  password: Netapp1!Tenant     # reset each run
   buckets:
-    - appid-001-data           # bucket names follow S3 naming rules (hyphens, not underscores)
+    - appid-001-data           # bucket name
 ```
 
 `policies.local.yaml`:
 
 ```yaml
-# Monitor-only: omit "limit" for metrics without enforcement.
+# Omit "limit" for monitor-only policies.
 - name: monitor-tenant-appid-001
-  tenant_name: appid_001       # resolved to the tenant's account id at apply time
+  tenant_name: appid_001
 
-# With a limit:
 - name: ingest-limit
   description: Limit ingest bandwidth for my-bucket
-  bucket: my-bucket            # or: tenant_name: <name>, tenant: <id>, or: ip: <cidr>
-  limit: 10485760              # bytes/sec (or a count, for concurrency limit types)
+  bucket: my-bucket
+  limit: 10485760
   limit_type: aggregateBandwidthIn
 ```
 
@@ -112,17 +118,14 @@ whole grid.
 
 `limit_type` is one of: `aggregateBandwidthIn`, `aggregateBandwidthOut`,
 `perRequestBandwidthIn`, `perRequestBandwidthOut`, `concurrentReadRequests`,
-`concurrentWriteRequests`. Bandwidth types are bytes/sec; concurrency types are
-a request count.
+`concurrentWriteRequests`.
 
-For full control (multiple matchers/limits per policy, or a raw tenant
-account id), use the raw API schema directly with `matchers`/`limits` keys
-instead of the simplified ones — see the commented example in
+For full control, use the raw API schema with `matchers` and `limits` keys. See
 [policies.example.yaml](policies.example.yaml).
 
 ## CLI overrides
 
-Any connection setting can be overridden on the command line instead of (or
-in addition to) `auth.local.yaml`: `--host`, `--username`, `--password`,
-`--insecure`, `--ca-bundle`. Precedence is CLI flag > `--auth-config` file >
-`STORAGEGRID_*` environment variable.
+You can override any auth setting on the command line: `--host`, `--username`,
+`--password`, `--insecure`, and `--ca-bundle`.
+
+Precedence is: CLI flag > `--auth-config` file > `STORAGEGRID_*` environment variable.

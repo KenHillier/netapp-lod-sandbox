@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""List and apply StorageGRID traffic classification policies.
+"""List or apply StorageGRID traffic-classification policies.
 
-Usage:
-    storagegrid_traffic_classification.py list  --auth-config auth.local.yaml
-    storagegrid_traffic_classification.py apply --auth-config auth.local.yaml --policies-config policies.local.yaml
-
-Run storagegrid_auth.py first to verify connectivity (see its --help).
-See auth.example.yaml and policies.example.yaml for the input file formats.
+Examples:
+    storagegrid_traffic_classification.py list --auth-config auth.local.yaml
+    storagegrid_traffic_classification.py list --auth-config auth.local.yaml --summary
+    storagegrid_traffic_classification.py apply --auth-config auth.local.yaml --policies-config policies.local.yaml --summary
 """
 
 import argparse
@@ -38,8 +36,26 @@ LIMIT_TYPES = (
 # Policy API calls
 # --------------------------------------------------------------------------
 
+def get_policy_details(client: StorageGRIDClient, policy_id: str) -> dict[str, Any]:
+    response = client.get(f"{POLICIES_PATH}/{policy_id}")
+    data = response.get("data", response)
+    return data if isinstance(data, dict) else {}
+
+
 def list_policies(client: StorageGRIDClient) -> Any:
-    return client.get(POLICIES_PATH)
+    response = client.get(POLICIES_PATH)
+    records = response.get("data", [])
+    if not isinstance(records, list):
+        return response
+
+    detailed = []
+    for record in records:
+        policy_id = record.get("id")
+        if not policy_id:
+            detailed.append(record)
+            continue
+        detailed.append(get_policy_details(client, str(policy_id)))
+    return {"data": detailed}
 
 
 def find_policy_id(client: StorageGRIDClient, name: str) -> str | None:
@@ -140,16 +156,26 @@ def resolve_tenant_name(client: StorageGRIDClient, policy: dict[str, Any]) -> di
 
 def summarize_policy(record: dict[str, Any]) -> str:
     parts = [record.get("name", "?")]
+
+    description = record.get("description")
+    if description:
+        parts.append(f"description={description}")
+
     matchers = record.get("matchers")
     if matchers:
         parts.append("matchers=" + ",".join(f"{m.get('type')}:{','.join(m.get('members', []))}" for m in matchers))
     elif matchers is not None:
         parts.append("matchers=grid-wide")
+
     limits = record.get("limits")
     if limits:
-        parts.append("limits=" + ",".join(f"{l.get('type')}={l.get('value')}" for l in limits))
-    elif limits is not None:
-        parts.append("monitor-only")
+        if isinstance(limits, list):
+            parts.append("limits=" + ",".join(f"{limit.get('type')}={limit.get('value')}" for limit in limits if isinstance(limit, dict)))
+        elif isinstance(limits, dict):
+            parts.append(f"limits={limits.get('type')}={limits.get('value')}")
+    elif record.get("limit") is not None:
+        parts.append(f"limit={record.get('limit')}")
+
     return " | ".join(parts)
 
 

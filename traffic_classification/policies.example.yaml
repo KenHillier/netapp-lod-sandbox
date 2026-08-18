@@ -1,54 +1,42 @@
-# Traffic classification policies. Copy to policies.local.yaml (gitignored).
-# List of policies applied by the "apply" command (created, or updated in
-# place if a policy with the same name already exists).
-
-# Fields (simplified form):
-#   name          Required. Policy name; identifies it for create-or-update.
-#   description   Optional.
-#   bucket        Optional matcher. Bucket name.
-#   tenant_name   Optional matcher. Tenant name (application ID); resolved to its account id.
-#   tenant        Optional matcher. Tenant account id directly (skips lookup).
-#   ip            Optional matcher. Client IP or CIDR.
-#   limit         Optional. Omit for monitor-only (metrics, no enforcement).
-#   limit_type    Used with limit. One of: aggregateBandwidthIn, aggregateBandwidthOut,
-#                 perRequestBandwidthIn, perRequestBandwidthOut, concurrentReadRequests,
-#                 concurrentWriteRequests. Bandwidth = bytes/sec; concurrency = a count.
-# Omitting every matcher key matches the whole grid. Multiple matcher keys on
-# one policy are ANDed together.
+# Copy to policies.local.yaml (gitignored).
+# Simple form:
+#   name        required
+#   description optional
+#   bucket      optional matcher
+#   tenant_name optional matcher (resolved to the tenant account id)
+#   tenant      optional matcher (account id directly)
+#   ip          optional matcher (IP or CIDR)
+#   limit       optional; omit for monitor-only
+#   limit_type  required if limit is set
 #
-# Advanced form: set "matchers"/"limits" directly (the raw StorageGRID API
-# schema) for multiple matchers/limits per policy, or a raw tenant account id.
-
-# --- Monitor-only examples (no "limit" -> metrics only, no enforcement) ---
+# Omit all matcher keys to match the whole grid.
+# Advanced form: use raw "matchers" and "limits" keys for full control.
 
 - name: monitor-grid
-  description: Collect traffic metrics for the entire grid
+  description: Monitor-only grid policy
 
 - name: monitor-tenant-appid-001
-  description: Collect traffic metrics for tenant appid_001
+  description: Monitor-only tenant policy
   tenant_name: appid_001
 
 - name: monitor-bucket-appid-001-data
-  description: Collect traffic metrics for a single bucket
+  description: Monitor-only bucket policy
   bucket: appid-001-data
 
-# --- Limit examples ---
-
 - name: ingest-limit
-  description: Limit ingest bandwidth for my-bucket
+  description: Demo ingest limit
   bucket: my-bucket
   limit: 10485760
   limit_type: aggregateBandwidthIn
 
 - name: tenant-egress-limit-appid-001
-  description: Cap egress bandwidth for tenant appid_001
+  description: Demo egress limit
   tenant_name: appid_001
   limit: 5242880
   limit_type: aggregateBandwidthOut
 
-# --- Advanced form example ---
+# Advanced example:
 # - name: tenant-egress-limit
-#   description: Cap egress for a specific tenant
 #   matchers:
 #     - type: tenant
 #       inverse: false

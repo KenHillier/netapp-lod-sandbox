@@ -1,10 +1,7 @@
-# Test tenants and buckets. Copy to tenants.local.yaml (gitignored).
-# List of tenants applied by the "apply" command (created if missing).
-
-# Fields:
-#   name        Required. Tenant name; doubles as an application ID (e.g. appid_001).
-#   password    Required if buckets is set. (Re)set on the tenant root user every run.
-#   buckets     Optional. Bucket names (S3 rules: lowercase, hyphens, no underscores).
+# Copy to tenants.local.yaml (gitignored).
+# name: tenant name; used as the app ID in policy definitions
+# password: required if buckets are present
+# buckets: optional list of bucket names
 
 - name: appid_001
   password: Netapp1!Tenant

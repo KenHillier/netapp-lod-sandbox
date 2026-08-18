@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
-"""Create test tenant accounts and buckets on StorageGRID.
-
-Tenant "name" doubles as an application ID (e.g. appid_001), so traffic
-classification policies can reference tenants by name (see tenant_name in
-storagegrid_traffic_classification.py).
+"""Create test tenants and buckets on StorageGRID.
 
 Usage:
-    storagegrid_tenants.py list  --auth-config auth.local.yaml
+    storagegrid_tenants.py list --auth-config auth.local.yaml
     storagegrid_tenants.py apply --auth-config auth.local.yaml --tenants-config tenants.local.yaml
-
-See tenants.example.yaml for the input file format.
 """
 
 import argparse
