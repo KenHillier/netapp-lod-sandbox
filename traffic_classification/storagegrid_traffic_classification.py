@@ -153,13 +153,24 @@ def summarize_policy(record: dict[str, Any]) -> str:
     return " | ".join(parts)
 
 
-def print_summary(result: Any) -> None:
+def iter_policy_records(result: Any) -> list[dict[str, Any]]:
     if isinstance(result, dict):
-        records = result.get("data", [])
-    elif isinstance(result, list):
-        records = [item["data"] for item in result if isinstance(item, dict) and "data" in item]
-    else:
+        data = result.get("data", [])
+        return data if isinstance(data, list) else [data]
+    if isinstance(result, list):
         records = []
+        for item in result:
+            if isinstance(item, dict):
+                if "data" in item and isinstance(item["data"], dict):
+                    records.append(item["data"])
+                elif "name" in item:
+                    records.append(item)
+        return records
+    return []
+
+
+def print_summary(result: Any) -> None:
+    records = iter_policy_records(result)
     print("--- summary ---")
     for record in records:
         print(summarize_policy(record))
@@ -199,6 +210,7 @@ def main(argv: list[str] | None = None) -> int:
             policies = load_yaml(args.policies_config, default=[])
             result = cmd_apply(client, policies)
 
+        # Keep the raw API payload separate from the human-readable summary.
         print(json.dumps(result, indent=2))
         if args.summary:
             print_summary(result)
