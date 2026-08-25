@@ -6,6 +6,8 @@ Usage:
     storagegrid_tenants.py apply --auth-config auth.local.yaml --tenants-config tenants.local.yaml
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys

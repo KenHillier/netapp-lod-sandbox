@@ -11,8 +11,10 @@ Keep each config file separate: auth, tenant data, and policy data stay in diffe
 
 ## Setup
 
+Requires Python 3.9 or newer. Install the runtime dependencies with:
+
 ```bash
-python3 -m pip install requests pyyaml
+python3 -m pip install requests PyYAML urllib3
 cp auth.example.yaml auth.local.yaml
 cp tenants.example.yaml tenants.local.yaml
 cp policies.example.yaml policies.local.yaml

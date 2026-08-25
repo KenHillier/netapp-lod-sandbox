@@ -6,6 +6,8 @@ Examples:
     python3 storagegrid_tc_policy_yaml.py template --auth-config auth.local.yaml --output policies.monitor.yaml
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from typing import Any

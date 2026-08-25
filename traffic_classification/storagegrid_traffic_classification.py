@@ -7,6 +7,8 @@ Examples:
     storagegrid_traffic_classification.py apply --auth-config auth.local.yaml --policies-config policies.local.yaml --summary
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import sys
