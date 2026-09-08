@@ -21,7 +21,7 @@ from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
 ACCOUNTS_PATH = "/api/v4/grid/accounts"
-CONTAINERS_PATH = "/api/v3/org/containers"
+CONTAINERS_PATH = "/api/v4/org/containers"
 DEFAULT_REGION = "us-east-1"
 
 
@@ -50,6 +50,27 @@ def ensure_tenant(client: StorageGRIDClient, name: str, password: str | None) ->
     if password:
         client.post(f"{ACCOUNTS_PATH}/{account['id']}/change-password", {"password": password})
     return account
+
+
+def cmd_cleanup(client: StorageGRIDClient, tenants: list[dict[str, Any]], dry_run: bool = False) -> list[Any]:
+    """Delete only the tenant accounts named in the supplied config file."""
+    if not tenants:
+        raise ValueError("No tenants defined. Point --tenants-config at a YAML file with a list of tenants.")
+
+    results = []
+    for tenant in tenants:
+        if "name" not in tenant:
+            raise ValueError("Each tenant in the cleanup config must have a 'name'")
+        account = find_tenant(client, tenant["name"])
+        if account is None:
+            results.append({"name": tenant["name"], "status": "not found"})
+            continue
+        if dry_run:
+            results.append({"tenant": account, "status": "would delete"})
+            continue
+        client.delete(f"{ACCOUNTS_PATH}/{account['id']}")
+        results.append({"tenant": account, "status": "deleted"})
+    return results
 
 
 def ensure_bucket(tenant_client: StorageGRIDClient, bucket_name: str, region: str = DEFAULT_REGION) -> dict[str, Any]:
@@ -120,7 +141,7 @@ def print_summary(result: Any) -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("list", "apply"))
+    parser.add_argument("command", choices=("list", "apply", "cleanup"))
     parser.add_argument("--auth-config", help="YAML file with connection settings (see auth.example.yaml)")
     parser.add_argument("--tenants-config", help="YAML file with a list of tenants (see tenants.example.yaml), required for apply")
     parser.add_argument("--host", default=None, help="Overrides --auth-config / STORAGEGRID_HOST")
@@ -129,6 +150,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--insecure", action="store_true", help="Disable TLS certificate verification")
     parser.add_argument("--ca-bundle", default=None, help="Path to a CA bundle used to verify the certificate")
     parser.add_argument("--summary", action="store_true", help="Also print a short recap after the raw JSON output")
+    parser.add_argument("--dry-run", action="store_true", help="For cleanup, show accounts without deleting them")
     return parser.parse_args(argv)
 
 
@@ -144,9 +166,12 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "list":
             result = list_tenants(client)
-        else:
+        elif args.command == "apply":
             tenants = load_yaml(args.tenants_config, default=[])
             result = cmd_apply(client, connection, tenants)
+        else:
+            tenants = load_yaml(args.tenants_config, default=[])
+            result = cmd_cleanup(client, tenants, dry_run=args.dry_run)
 
         print(json.dumps(result, indent=2))
         if args.summary:

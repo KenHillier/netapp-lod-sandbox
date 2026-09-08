@@ -9,6 +9,10 @@ The folder has four small scripts:
 
 Keep each config file separate: auth, tenant data, and policy data stay in different YAML files.
 
+The scripts target the StorageGRID v4 Grid Management and Tenant Management
+APIs, including authentication, tenant accounts, buckets, and traffic-classification
+policies. StorageGRID 12.x or newer is required.
+
 ## Setup
 
 Requires Python 3.9 or newer. Install the runtime dependencies with:
@@ -48,6 +52,18 @@ python3 storagegrid_tenants.py apply \
   --auth-config auth.local.yaml --tenants-config tenants.local.yaml
 ```
 
+### Clean up listed tenants
+
+Use a tenant YAML file containing only the accounts to remove. Preview the
+deletions with `--dry-run`, or omit it to delete the listed accounts.
+
+```bash
+python3 storagegrid_tenants.py cleanup \
+  --auth-config auth.local.yaml --tenants-config tenants.cleanup.yaml --dry-run
+python3 storagegrid_tenants.py cleanup \
+  --auth-config auth.local.yaml --tenants-config tenants.cleanup.yaml
+```
+
 ### List tenant accounts
 
 ```bash
@@ -82,7 +98,7 @@ python3 storagegrid_tc_policy_yaml.py template \
   --auth-config auth.local.yaml --output policies.monitor.yaml
 ```
 
-This creates a YAML draft with one monitor-only policy per tenant name, which can then be reviewed and applied with the main policy script.
+This creates one monitor-only policy per tenant. Review the YAML before applying it.
 
 Generated policies use `TC Monitor <account ID>` as the policy name, the tenant
 account ID as the `tenant` matcher, and the tenant name as the description.
@@ -102,6 +118,18 @@ Add `--summary` to show the compact policy recap after the raw API response:
 ```bash
 python3 storagegrid_traffic_classification.py apply \
   --auth-config auth.local.yaml --policies-config policies.local.yaml --summary
+```
+
+### Clean up listed policies
+
+Use a policy YAML file containing only the policies to remove. Preview the
+deletions with `--dry-run`, or omit it to delete the listed policies.
+
+```bash
+python3 storagegrid_traffic_classification.py cleanup \
+  --auth-config auth.local.yaml --policies-config policies.cleanup.yaml --dry-run
+python3 storagegrid_traffic_classification.py cleanup \
+  --auth-config auth.local.yaml --policies-config policies.cleanup.yaml
 ```
 
 ## Config file reference
@@ -148,15 +176,14 @@ whole grid.
 For full control, use the raw API schema with `matchers` and `limits` keys. See
 [policies.example.yaml](policies.example.yaml).
 
-## LabOnDemand note
+## LabOnDemand
 
-These scripts are intended to be run in a StorageGRID lab environment such as the NetApp LabOnDemand training and demo environments. If you are working in a lab that already exposes the grid endpoint, the scripts here are designed to be used directly against that environment with the standard `auth.local.yaml` flow.
+These scripts are intended for StorageGRID lab environments, including NetApp
+LabOnDemand. Use the standard `auth.local.yaml` workflow to authenticate, list
+tenants or policies, generate policy YAML, and apply it.
 
-For example, the lab environment used for this workflow is here: https://labondemand.netapp.com/node/1523
-
-The customer-facing lab experience is here: https://labondemand.netapp.com/lab/gsstg-hol
-
-This is especially relevant for the StorageGRID labs used for tenant and traffic-classification exercises. If you are using this in that environment, the workflow is simply: authenticate, list or inspect tenants and policies, then generate or apply the policy YAML as needed.
+- [Lab environment](https://labondemand.netapp.com/node/1523)
+- [Customer lab](https://labondemand.netapp.com/lab/gsstg-hol)
 
 ## CLI overrides
 
@@ -164,3 +191,10 @@ You can override any auth setting on the command line: `--host`, `--username`,
 `--password`, `--insecure`, and `--ca-bundle`.
 
 Precedence is: CLI flag > `--auth-config` file > `STORAGEGRID_*` environment variable.
+
+## Changelog
+
+- Added StorageGRID v4 support for 12.x and newer.
+- Added paginated tenant account listing.
+- Generated policies now use tenant account IDs.
+- Added config-based cleanup with `--dry-run` for tenants and policies.

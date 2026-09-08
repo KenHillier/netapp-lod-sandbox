@@ -19,7 +19,7 @@ import urllib3
 import yaml
 
 
-HEALTH_PATH = "/api/v3/grid/config/product-version"
+HEALTH_PATH = "/api/v4/grid/config/product-version"
 
 
 # --------------------------------------------------------------------------
@@ -147,7 +147,7 @@ class StorageGRIDClient:
         credentials: dict[str, Any] = {"username": username, "password": password}
         if account_id:
             credentials["accountId"] = account_id
-        response = self._request("post", "/api/v3/authorize", json=credentials)
+        response = self._request("post", "/api/v4/authorize", json=credentials)
         token = extract_token(response)
         self.session.headers.update(
             {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}

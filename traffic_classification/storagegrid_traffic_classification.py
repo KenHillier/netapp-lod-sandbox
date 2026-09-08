@@ -21,7 +21,7 @@ import yaml
 from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
-POLICIES_PATH = "/api/v3/grid/traffic-classes/policies"
+POLICIES_PATH = "/api/v4/grid/traffic-classes/policies"
 ACCOUNTS_PATH = "/api/v4/grid/accounts"
 
 LIMIT_TYPES = (
@@ -75,6 +75,27 @@ def apply_policy(client: StorageGRIDClient, payload: dict[str, Any]) -> Any:
     else:
         response = client.post(POLICIES_PATH, payload)
     return response.json() if response.content else {"status": response.status_code}
+
+
+def cmd_cleanup(client: StorageGRIDClient, policies: list[dict[str, Any]], dry_run: bool = False) -> list[Any]:
+    """Delete only the traffic-classification policies named in the config file."""
+    if not policies:
+        raise ValueError("No policies defined. Point --policies-config at a YAML file with a list of policies.")
+
+    results = []
+    for policy in policies:
+        if "name" not in policy:
+            raise ValueError("Each policy in the cleanup config must have a 'name'")
+        policy_id = find_policy_id(client, policy["name"])
+        if policy_id is None:
+            results.append({"name": policy["name"], "status": "not found"})
+            continue
+        if dry_run:
+            results.append({"name": policy["name"], "id": policy_id, "status": "would delete"})
+            continue
+        client.delete(f"{POLICIES_PATH}/{policy_id}")
+        results.append({"name": policy["name"], "id": policy_id, "status": "deleted"})
+    return results
 
 
 def resolve_tenant_id(client: StorageGRIDClient, tenant_name: str) -> str:
@@ -225,7 +246,7 @@ def print_summary(result: Any) -> None:
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("list", "apply"))
+    parser.add_argument("command", choices=("list", "apply", "cleanup"))
     parser.add_argument("--auth-config", help="YAML file with connection settings (see auth.example.yaml)")
     parser.add_argument("--policies-config", help="YAML file with a list of policies (see policies.example.yaml), required for apply")
     parser.add_argument("--host", default=None, help="Overrides --auth-config / STORAGEGRID_HOST")
@@ -234,6 +255,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--insecure", action="store_true", help="Disable TLS certificate verification")
     parser.add_argument("--ca-bundle", default=None, help="Path to a CA bundle used to verify the certificate")
     parser.add_argument("--summary", action="store_true", help="Also print a short recap after the raw JSON output")
+    parser.add_argument("--dry-run", action="store_true", help="For cleanup, show policies without deleting them")
     return parser.parse_args(argv)
 
 
@@ -249,9 +271,12 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "list":
             result = list_policies(client)
-        else:
+        elif args.command == "apply":
             policies = load_yaml(args.policies_config, default=[])
             result = cmd_apply(client, policies)
+        else:
+            policies = load_yaml(args.policies_config, default=[])
+            result = cmd_cleanup(client, policies, dry_run=args.dry_run)
 
         # Keep the raw API payload separate from the human-readable summary.
         print(json.dumps(result, indent=2))
