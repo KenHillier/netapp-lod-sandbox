@@ -54,6 +54,10 @@ python3 storagegrid_tenants.py apply \
 python3 storagegrid_tenants.py list --auth-config auth.local.yaml
 ```
 
+Account listing requests ask for the maximum page size of 500 and follow the
+StorageGRID pagination marker, so grids with more than 500 tenant accounts are
+included in the result.
+
 ### List traffic-classification policies
 
 This prints the raw StorageGRID API JSON response:
@@ -79,6 +83,12 @@ python3 storagegrid_tc_policy_yaml.py template \
 ```
 
 This creates a YAML draft with one monitor-only policy per tenant name, which can then be reviewed and applied with the main policy script.
+
+Generated policies use `TC Monitor <account ID>` as the policy name, the tenant
+account ID as the `tenant` matcher, and the tenant name as the description.
+Policy names are limited to 32 characters and descriptions to 128 characters;
+invalid hand-written entries are reported individually and do not stop later
+policies from being applied.
 
 ### Create or update policies
 

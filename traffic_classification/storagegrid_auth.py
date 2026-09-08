@@ -12,6 +12,7 @@ import json
 import os
 import sys
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import requests
 import urllib3
@@ -154,6 +155,55 @@ class StorageGRIDClient:
 
     def get(self, path: str) -> Any:
         return self._request("get", path).json()
+
+    def get_paginated(self, path: str, limit: int = 500) -> dict[str, Any]:
+        """Fetch all pages from a StorageGRID list endpoint."""
+        records: list[Any] = []
+        next_path = self._with_query(path, "limit", str(limit))
+        first_response: dict[str, Any] | None = None
+        seen_paths: set[str] = set()
+
+        while next_path and next_path not in seen_paths:
+            seen_paths.add(next_path)
+            current_path = next_path
+            response = self.get(current_path)
+            if not isinstance(response, dict):
+                return response
+            if first_response is None:
+                first_response = response
+
+            page = response.get("data", [])
+            if not isinstance(page, list):
+                return response
+            records.extend(page)
+
+            next_path = response.get("nextLink")
+            if not next_path:
+                pagination = response.get("pagination")
+                if isinstance(pagination, dict):
+                    next_path = pagination.get("nextLink")
+                    next_marker = pagination.get("nextMarker")
+                else:
+                    next_marker = response.get("nextMarker")
+                if not next_path and next_marker:
+                    next_path = self._with_query(current_path, "marker", str(next_marker))
+            if next_path and str(next_path).startswith(("http://", "https://")):
+                parsed = urlsplit(str(next_path))
+                next_path = urlunsplit(("", "", parsed.path, parsed.query, ""))
+
+        result = dict(first_response or {})
+        result["data"] = records
+        result.pop("nextLink", None)
+        result.pop("nextMarker", None)
+        result.pop("pagination", None)
+        return result
+
+    @staticmethod
+    def _with_query(path: str, key: str, value: str) -> str:
+        parsed = urlsplit(path)
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        query[key] = value
+        return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
 
     def post(self, path: str, payload: dict[str, Any]) -> requests.Response:
         return self._request("post", path, json=payload)

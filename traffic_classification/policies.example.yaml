@@ -3,7 +3,7 @@
 #   name        required
 #   description optional
 #   bucket      optional matcher
-#   tenant_name optional matcher (resolved to the tenant account id)
+#   tenant_name optional legacy matcher (resolved to the tenant account id)
 #   tenant      optional matcher (account id directly)
 #   ip          optional matcher (IP or CIDR)
 #   limit       optional; omit for monitor-only
@@ -16,8 +16,8 @@
   description: Monitor-only grid policy
 
 - name: monitor-tenant-appid-001
-  description: Monitor-only tenant policy
-  tenant_name: appid_001
+  description: appid_001
+  tenant: "0123456789012345678"
 
 - name: monitor-bucket-appid-001-data
   description: Monitor-only bucket policy

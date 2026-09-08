@@ -22,7 +22,7 @@ from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
 POLICIES_PATH = "/api/v3/grid/traffic-classes/policies"
-ACCOUNTS_PATH = "/api/v3/grid/accounts"
+ACCOUNTS_PATH = "/api/v4/grid/accounts"
 
 LIMIT_TYPES = (
     "aggregateBandwidthIn",
@@ -32,6 +32,8 @@ LIMIT_TYPES = (
     "concurrentReadRequests",
     "concurrentWriteRequests",
 )
+MAX_POLICY_NAME_LENGTH = 32
+MAX_POLICY_DESCRIPTION_LENGTH = 128
 
 
 # --------------------------------------------------------------------------
@@ -77,7 +79,7 @@ def apply_policy(client: StorageGRIDClient, payload: dict[str, Any]) -> Any:
 
 def resolve_tenant_id(client: StorageGRIDClient, tenant_name: str) -> str:
     """Look up a tenant account id by its name (tenant names double as application IDs)."""
-    accounts = client.get(ACCOUNTS_PATH).get("data", [])
+    accounts = client.get_paginated(ACCOUNTS_PATH).get("data", [])
     matches = [account["id"] for account in accounts if account.get("name") == tenant_name]
     if not matches:
         raise ValueError(f"No tenant account named '{tenant_name}' was found")
@@ -105,6 +107,12 @@ def build_policy_payload(policy: dict[str, Any]) -> dict[str, Any]:
     """
     if "name" not in policy:
         raise ValueError("Each policy in the config file must have a 'name'")
+    if len(policy["name"]) > MAX_POLICY_NAME_LENGTH:
+        raise ValueError(f"Policy name '{policy['name']}' exceeds {MAX_POLICY_NAME_LENGTH} characters")
+    if policy.get("description") and len(policy["description"]) > MAX_POLICY_DESCRIPTION_LENGTH:
+        raise ValueError(
+            f"Description for policy '{policy['name']}' exceeds {MAX_POLICY_DESCRIPTION_LENGTH} characters"
+        )
 
     if "matchers" in policy or "limits" in policy:
         payload: dict[str, Any] = {"name": policy["name"], "matchers": policy.get("matchers", [])}
@@ -140,7 +148,14 @@ def build_policy_payload(policy: dict[str, Any]) -> dict[str, Any]:
 def cmd_apply(client: StorageGRIDClient, policies: list[dict[str, Any]]) -> list[Any]:
     if not policies:
         raise ValueError("No policies defined. Point --policies-config at a YAML file with a list of policies.")
-    return [apply_policy(client, build_policy_payload(resolve_tenant_name(client, policy))) for policy in policies]
+    results = []
+    for policy in policies:
+        try:
+            payload = build_policy_payload(resolve_tenant_name(client, policy))
+            results.append(apply_policy(client, payload))
+        except (ValueError, requests.RequestException) as error:
+            results.append({"name": policy.get("name", "?"), "status": "error", "error": str(error)})
+    return results
 
 
 def resolve_tenant_name(client: StorageGRIDClient, policy: dict[str, Any]) -> dict[str, Any]:

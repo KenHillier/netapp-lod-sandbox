@@ -19,23 +19,29 @@ import yaml
 from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
-ACCOUNTS_PATH = "/api/v3/grid/accounts"
+ACCOUNTS_PATH = "/api/v4/grid/accounts"
 
 
-def list_tenant_names(client: StorageGRIDClient) -> list[str]:
-    accounts = client.get(ACCOUNTS_PATH).get("data", [])
-    names = [account.get("name") for account in accounts if isinstance(account, dict) and account.get("name")]
-    return sorted(names)
+def list_tenants(client: StorageGRIDClient) -> list[dict[str, str]]:
+    accounts = client.get_paginated(ACCOUNTS_PATH).get("data", [])
+    return sorted(
+        [
+            {"id": account["id"], "name": account["name"]}
+            for account in accounts
+            if isinstance(account, dict) and account.get("id") and account.get("name")
+        ],
+        key=lambda account: account["name"],
+    )
 
 
-def build_monitor_policy_yaml(tenant_names: list[str]) -> list[dict[str, str]]:
+def build_monitor_policy_yaml(tenants: list[dict[str, str]]) -> list[dict[str, str]]:
     policies: list[dict[str, str]] = []
-    for tenant_name in tenant_names:
+    for tenant in tenants:
         policies.append(
             {
-                "name": f"monitor-tenant-{tenant_name}",
-                "description": f"Monitor-only policy for tenant {tenant_name}",
-                "tenant_name": tenant_name,
+                "name": f"TC Monitor {tenant['id']}",
+                "description": tenant["name"],
+                "tenant": tenant["id"],
             }
         )
     return policies
@@ -65,13 +71,13 @@ def main(argv: list[str] | None = None) -> int:
         client = StorageGRIDClient(**connection)
 
         if args.command == "list":
-            tenant_names = list_tenant_names(client)
-            for tenant_name in tenant_names:
-                print(tenant_name)
+            tenants = list_tenants(client)
+            for tenant in tenants:
+                print(tenant["name"])
             return 0
 
-        tenant_names = list_tenant_names(client)
-        policies = build_monitor_policy_yaml(tenant_names)
+        tenants = list_tenants(client)
+        policies = build_monitor_policy_yaml(tenants)
         rendered = yaml.safe_dump(policies, sort_keys=False, default_flow_style=False)
 
         if args.output:

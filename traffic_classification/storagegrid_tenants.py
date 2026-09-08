@@ -20,7 +20,7 @@ import yaml
 from storagegrid_auth import StorageGRIDClient, load_yaml, resolve_connection
 
 
-ACCOUNTS_PATH = "/api/v3/grid/accounts"
+ACCOUNTS_PATH = "/api/v4/grid/accounts"
 CONTAINERS_PATH = "/api/v3/org/containers"
 DEFAULT_REGION = "us-east-1"
 
@@ -30,7 +30,7 @@ DEFAULT_REGION = "us-east-1"
 # --------------------------------------------------------------------------
 
 def list_tenants(client: StorageGRIDClient) -> Any:
-    return client.get(ACCOUNTS_PATH)
+    return client.get_paginated(ACCOUNTS_PATH)
 
 
 def find_tenant(client: StorageGRIDClient, name: str) -> dict[str, Any] | None:
