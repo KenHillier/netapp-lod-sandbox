@@ -187,6 +187,8 @@ class StorageGRIDClient:
                     next_marker = response.get("nextMarker")
                 if not next_path and next_marker:
                     next_path = self._with_query(current_path, "marker", str(next_marker))
+            if not next_path and len(page) == limit and isinstance(page[-1], dict) and page[-1].get("id"):
+                next_path = self._with_query(current_path, "marker", str(page[-1]["id"]))
             if next_path and str(next_path).startswith(("http://", "https://")):
                 parsed = urlsplit(str(next_path))
                 next_path = urlunsplit(("", "", parsed.path, parsed.query, ""))
