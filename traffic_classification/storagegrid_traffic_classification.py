@@ -63,18 +63,29 @@ def list_policies(client: StorageGRIDClient) -> Any:
 
 
 def find_policy_id(client: StorageGRIDClient, name: str) -> str | None:
-    records = list_policies(client).get("data", [])
+    response = client.get(POLICIES_PATH)
+    records = response.get("data", []) if isinstance(response, dict) else []
     return next((item["id"] for item in records if item.get("name") == name), None)
 
 
-def apply_policy(client: StorageGRIDClient, payload: dict[str, Any]) -> Any:
+def apply_policy(
+    client: StorageGRIDClient,
+    payload: dict[str, Any],
+    policy_ids: dict[str, str] | None = None,
+) -> Any:
     """Create the policy, or update it in place if a policy with the same name exists."""
-    existing_id = find_policy_id(client, payload["name"])
+    existing_id = policy_ids.get(payload["name"]) if policy_ids is not None else find_policy_id(client, payload["name"])
     if existing_id:
         response = client.put(f"{POLICIES_PATH}/{existing_id}", payload)
     else:
         response = client.post(POLICIES_PATH, payload)
     return response.json() if response.content else {"status": response.status_code}
+
+
+def get_policy_ids(client: StorageGRIDClient) -> dict[str, str]:
+    response = client.get(POLICIES_PATH)
+    records = response.get("data", []) if isinstance(response, dict) else []
+    return {record["name"]: record["id"] for record in records if record.get("name") and record.get("id")}
 
 
 def cmd_cleanup(client: StorageGRIDClient, policies: list[dict[str, Any]], dry_run: bool = False) -> list[Any]:
@@ -170,10 +181,11 @@ def cmd_apply(client: StorageGRIDClient, policies: list[dict[str, Any]]) -> list
     if not policies:
         raise ValueError("No policies defined. Point --policies-config at a YAML file with a list of policies.")
     results = []
+    policy_ids = get_policy_ids(client)
     for policy in policies:
         try:
             payload = build_policy_payload(resolve_tenant_name(client, policy))
-            results.append(apply_policy(client, payload))
+            results.append(apply_policy(client, payload, policy_ids))
         except (ValueError, requests.RequestException) as error:
             results.append({"name": policy.get("name", "?"), "status": "error", "error": str(error)})
     return results
